@@ -11,6 +11,7 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { PointerLockControls } from 'three/addons/controls/PointerLockControls.js';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
+import { FBXLoader } from 'three/addons/loaders/FBXLoader.js';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 
 export function createProjectScene(canvas, opts = {}) {
@@ -471,30 +472,78 @@ export function createProjectScene(canvas, opts = {}) {
     placeholder = new THREE.Mesh(new THREE.TorusKnotGeometry(0.85, 0.27, 240, 36), mat);
     group.add(placeholder);
   }
-  if (model) {
+  let hero = null, auraFx = null;
+
+  // sprite radial violet (glow)
+  function glowSprite(op, sc) {
+    const cv = document.createElement('canvas'); cv.width = cv.height = 128;
+    const c = cv.getContext('2d');
+    const grd = c.createRadialGradient(64, 64, 0, 64, 64, 64);
+    grd.addColorStop(0, `rgba(180,140,255,${op})`);
+    grd.addColorStop(0.45, `rgba(130,90,255,${op * 0.35})`);
+    grd.addColorStop(1, 'rgba(130,90,255,0)');
+    c.fillStyle = grd; c.fillRect(0, 0, 128, 128);
+    const s = new THREE.Sprite(new THREE.SpriteMaterial({
+      map: new THREE.CanvasTexture(cv), blending: THREE.AdditiveBlending, depthWrite: false, transparent: true,
+    }));
+    s.scale.set(sc, sc, 1); return s;
+  }
+
+  // aura magique recréée (VFX Unity non exportable) : glow pulsant + motes + lumière
+  function buildAura() {
+    const outer = glowSprite(0.5, 3.1), inner = glowSprite(0.9, 1.5);
+    group.add(outer, inner);
+    const cnt = 44, pos = new Float32Array(cnt * 3), seed = [];
+    for (let i = 0; i < cnt; i++) {
+      const a = Math.random() * 6.283, r = 0.8 + Math.random() * 1.5, y = (Math.random() - 0.5) * 2.2;
+      pos[i * 3] = Math.cos(a) * r; pos[i * 3 + 1] = y; pos[i * 3 + 2] = Math.sin(a) * r;
+      seed.push({ a, r, y0: y, sp: 0.25 + Math.random() * 0.6 });
+    }
+    const mg = new THREE.BufferGeometry();
+    mg.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+    const motes = new THREE.Points(mg, new THREE.PointsMaterial({
+      color: 0xc0a8ff, size: 0.07, transparent: true, opacity: 0.9,
+      blending: THREE.AdditiveBlending, depthWrite: false,
+    }));
+    group.add(motes);
+    const light = new THREE.PointLight(0x9a6bff, 12, 18, 2);
+    light.position.set(0, 0.3, 1.4); scene.add(light);
+    auraFx = { outer, inner, motes, mg, seed, light };
+  }
+
+  function afterHero(obj) {
+    fitObject(obj, 2.4);
+    hero = obj;
+    group.add(obj);
+    buildAura();
+  }
+
+  if (model && model.fbx) {
+    // FBX + textures PBR (ORM) fournies
+    const texL = new THREE.TextureLoader();
+    const base = texL.load(model.base); base.colorSpace = THREE.SRGBColorSpace;
+    const normal = texL.load(model.normal);
+    const orm = texL.load(model.orm);
+    new FBXLoader().load(model.fbx, (obj) => {
+      obj.traverse((o) => {
+        if (o.isMesh) {
+          if (o.geometry.attributes.uv && !o.geometry.attributes.uv2)
+            o.geometry.setAttribute('uv2', o.geometry.attributes.uv); // aoMap = 2e UV
+          o.material = new THREE.MeshStandardMaterial({
+            map: base, normalMap: normal,
+            roughnessMap: orm, metalnessMap: orm, aoMap: orm, // ORM: R=AO G=rough B=metal
+            roughness: 1, metalness: 1, envMapIntensity: 1,
+          });
+        }
+      });
+      afterHero(obj);
+    }, undefined, (err) => { console.warn('FBX load failed:', err); addPlaceholder(); });
+  } else if (model) {
     const draco = new DRACOLoader().setDecoderPath('/draco/');
     const loader = new GLTFLoader().setDRACOLoader(draco);
     const url = Array.isArray(model) ? model[0] : model;
-    loader.load(url, (g) => {
-      fitObject(g.scene, 2.6);
-      group.add(g.scene);
-
-      // aura magique recréée (les VFX/particules Unity ne s'exportent pas)
-      const cv = document.createElement('canvas'); cv.width = cv.height = 128;
-      const cx = cv.getContext('2d');
-      const grd = cx.createRadialGradient(64, 64, 0, 64, 64, 64);
-      grd.addColorStop(0, 'rgba(160,120,255,0.9)');
-      grd.addColorStop(0.4, 'rgba(130,90,255,0.35)');
-      grd.addColorStop(1, 'rgba(130,90,255,0)');
-      cx.fillStyle = grd; cx.fillRect(0, 0, 128, 128);
-      const aura = new THREE.Sprite(new THREE.SpriteMaterial({
-        map: new THREE.CanvasTexture(cv), blending: THREE.AdditiveBlending, depthWrite: false, transparent: true,
-      }));
-      aura.scale.set(3.4, 3.4, 1);
-      group.add(aura);
-      const violet = new THREE.PointLight(0x9a6bff, 9, 16, 2);
-      violet.position.set(0, 0.2, 1.4); scene.add(violet);
-    }, undefined, (err) => { console.warn('glTF load failed, using placeholder:', err); addPlaceholder(); });
+    loader.load(url, (g) => afterHero(g.scene),
+      undefined, (err) => { console.warn('glTF load failed, using placeholder:', err); addPlaceholder(); });
   } else {
     addPlaceholder();
   }
@@ -505,13 +554,33 @@ export function createProjectScene(canvas, opts = {}) {
   controls.enablePan = false;
   controls.minDistance = 2.5;
   controls.maxDistance = 7;
-  controls.autoRotate = !reducedMotion;
+  controls.autoRotate = !reducedMotion && !(model && model.fbx); // le grimoire tourne déjà sur lui-même
   controls.autoRotateSpeed = 1.1;
 
   resize();
+  const clock = new THREE.Clock();
   const tick = () => {
+    const t = clock.getElapsedTime();
     controls.update();
     if (placeholder && !reducedMotion) placeholder.rotation.x += 0.002;
+    if (hero && !reducedMotion) {
+      hero.position.y = Math.sin(t * 1.1) * 0.06;   // flottement
+      hero.rotation.y = t * 0.35;                    // rotation douce
+    }
+    if (auraFx && !reducedMotion) {
+      const pulse = 1 + Math.sin(t * 2) * 0.08;
+      auraFx.outer.scale.setScalar(3.1 * pulse);
+      auraFx.inner.scale.setScalar(1.5 * (1 + Math.sin(t * 2 + 1) * 0.12));
+      auraFx.light.intensity = 10 + Math.sin(t * 2.4) * 4;
+      const p = auraFx.mg.attributes.position;
+      for (let i = 0; i < auraFx.seed.length; i++) {
+        const s = auraFx.seed[i];
+        let y = s.y0 + ((t * s.sp) % 2.4);
+        if (y > 1.2) y -= 2.4;
+        p.setXYZ(i, Math.cos(s.a + t * 0.3) * s.r, y, Math.sin(s.a + t * 0.3) * s.r);
+      }
+      p.needsUpdate = true;
+    }
     renderer.render(scene, camera);
     raf = requestAnimationFrame(tick);
   };

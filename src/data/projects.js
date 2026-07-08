@@ -16,7 +16,12 @@ export const projects = [
     tech: ['Unity 6', 'URP', 'C#', 'Blender', 'World Design'],
     year: '2026',
     mode: 'orbit',
-    scene: ['models/valmyr/grimoire.glb?v=1'],
+    scene: {
+      fbx: 'models/valmyr/grimoire/grimoire.fbx',
+      base: 'models/valmyr/grimoire/base.webp',
+      normal: 'models/valmyr/grimoire/normal.webp',
+      orm: 'models/valmyr/grimoire/orm.webp',
+    },
     embed: null,
     status: {
       fr: 'Prototype jouable · Solo · En cours',

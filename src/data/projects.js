@@ -73,8 +73,14 @@ export const projects = [
         },
       },
     ],
-    cover: null,
-    gallery: [],
+    cover: 'images/valmyr/camp-01-aerial.jpg',
+    gallery: [
+      'images/valmyr/camp-01-aerial.jpg',
+      'images/valmyr/camp-04-porte.jpg',
+      'images/valmyr/camp-02-place.jpg',
+      'images/valmyr/camp-03-marche.jpg',
+      'images/valmyr/camp-05-feu.jpg',
+    ],
   },
   {
     id: 'forlorn-stars',

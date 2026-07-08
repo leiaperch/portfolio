@@ -70,7 +70,6 @@ function renderTicker() {
 /* ---------- textes statiques de la landing ---------- */
 function applyLanding() {
   const set = (id, val) => { const e = document.getElementById(id); if (e) e.textContent = val; };
-  set('nav-role', t('nav_role'));
   set('nav-works', t('nav_works'));
   set('nav-contact', t('nav_contact'));
   set('works-eyebrow', t('works_eyebrow'));

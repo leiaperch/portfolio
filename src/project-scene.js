@@ -401,12 +401,12 @@ export function createProjectScene(canvas, opts = {}) {
         if (minR && rr < minR) { p.x *= minR / rr; p.z *= minR / rr; } // ne traverse pas le feu
         p.y = 1.6;
       } else if (!reducedMotion) {
-        // panoramique lent tant qu'on n'est pas entré
-        const a = t * 0.08;
-        camera.position.x = Math.sin(a) * 9;
-        camera.position.z = Math.cos(a) * 9;
-        camera.position.y = 1.7;
-        camera.lookAt(0, 1, 0);
+        // vue 3/4 aérienne lente tant qu'on n'est pas entré
+        const a = t * 0.05;
+        const R = Math.min(Math.max(clampR * 0.8, 12), 30);
+        const H = Math.min(Math.max(clampR * 0.5, 9), 18);
+        camera.position.set(Math.sin(a) * R, H, Math.cos(a) * R);
+        camera.lookAt(0, 2, 0);
       }
       renderer.render(scene, camera);
       raf = requestAnimationFrame(tick);

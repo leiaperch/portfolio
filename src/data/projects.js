@@ -17,9 +17,8 @@ export const projects = [
     year: '2026',
     mode: 'explore',
     scene: [
-      'models/valmyr/survivants.glb?v=2',
-      'models/valmyr/buildings.glb?v=2',
-      'models/valmyr/details.glb?v=2',
+      'models/valmyr/survivants.glb?v=3',
+      'models/valmyr/buildings.glb?v=3',
     ],
     embed: null,
     status: {

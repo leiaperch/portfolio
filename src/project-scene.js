@@ -476,37 +476,24 @@ export function createProjectScene(canvas, opts = {}) {
     const loader = new GLTFLoader().setDRACOLoader(draco);
     const url = Array.isArray(model) ? model[0] : model;
     loader.load(url, (g) => {
-      // ne garde que les belles pièces (arche + colonnes) ; retire murs/tour/cercles
-      const kill = [];
-      g.scene.traverse((o) => { if (/wall|tower|circle|circular/i.test(o.name)) kill.push(o); });
-      kill.forEach((o) => o.parent && o.parent.remove(o));
-
-      // trouve l'arche + les colonnes (mesh instancié épars)
-      let arch = null, cols = null;
-      g.scene.traverse((o) => {
-        if (o.isInstancedMesh) cols = o;
-        else if (/arch/i.test(o.name)) arch = o;
-      });
-
-      // regroupe les colonnes en cercle serré autour de l'arche
-      if (cols && arch) {
-        const abox = new THREE.Box3().setFromObject(arch);
-        const ac = abox.getCenter(new THREE.Vector3());
-        const m = new THREE.Matrix4(), p = new THREE.Vector3(), q = new THREE.Quaternion(), s = new THREE.Vector3();
-        cols.getMatrixAt(0, m); m.decompose(p, q, s); // récupère échelle/orientation d'origine
-        const parent = cols.parent, n = cols.count;
-        cols.removeFromParent();
-        for (let i = 0; i < n; i++) {
-          const a = (i / n) * Math.PI * 2;
-          const col = new THREE.Mesh(cols.geometry, cols.material);
-          col.position.set(ac.x + Math.cos(a) * 5.5, abox.min.y, ac.z + Math.sin(a) * 5.5);
-          col.quaternion.copy(q); col.scale.copy(s);
-          parent.add(col);
-        }
-      }
-
-      fitObject(g.scene, 3);
+      fitObject(g.scene, 2.6);
       group.add(g.scene);
+
+      // aura magique recréée (les VFX/particules Unity ne s'exportent pas)
+      const cv = document.createElement('canvas'); cv.width = cv.height = 128;
+      const cx = cv.getContext('2d');
+      const grd = cx.createRadialGradient(64, 64, 0, 64, 64, 64);
+      grd.addColorStop(0, 'rgba(160,120,255,0.9)');
+      grd.addColorStop(0.4, 'rgba(130,90,255,0.35)');
+      grd.addColorStop(1, 'rgba(130,90,255,0)');
+      cx.fillStyle = grd; cx.fillRect(0, 0, 128, 128);
+      const aura = new THREE.Sprite(new THREE.SpriteMaterial({
+        map: new THREE.CanvasTexture(cv), blending: THREE.AdditiveBlending, depthWrite: false, transparent: true,
+      }));
+      aura.scale.set(3.4, 3.4, 1);
+      group.add(aura);
+      const violet = new THREE.PointLight(0x9a6bff, 9, 16, 2);
+      violet.position.set(0, 0.2, 1.4); scene.add(violet);
     }, undefined, (err) => { console.warn('glTF load failed, using placeholder:', err); addPlaceholder(); });
   } else {
     addPlaceholder();

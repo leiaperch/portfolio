@@ -276,6 +276,7 @@ export function createProjectScene(canvas, opts = {}) {
     let embers = null;
     let clampR = 16;
     let groundEye = 1.6;
+    let orbitR = 14, orbitH = 9, lookY = 2;
     const minR = model ? 0 : 1.3;
 
     if (model) {
@@ -323,7 +324,13 @@ export function createProjectScene(canvas, opts = {}) {
         groundEye = groundY + 1.7;
         ground.position.y = groundY - 0.05;
         fireLight.position.set(0, groundY + 1.4, 0);
-        camera.position.set(0, groundEye, Math.min(clampR * 0.42, 14));
+        // cadrage 3/4 qui encadre l'ensemble (actif même sans animation)
+        const frame = Math.max(size.x, size.z);
+        orbitR = Math.max(frame * 0.55, 7);
+        orbitH = groundY + Math.max(frame * 0.34, 5);
+        lookY = groundY + Math.max(frame * 0.12, 2);
+        camera.position.set(orbitR * 0.7, orbitH, orbitR * 0.7);
+        camera.lookAt(0, lookY, 0);
       };
       paths.forEach((p) => {
         loader.load(p, (g) => { root.add(g.scene); if (++done === paths.length) finalize(); },
@@ -424,10 +431,8 @@ export function createProjectScene(canvas, opts = {}) {
       } else if (!reducedMotion) {
         // vue 3/4 aérienne lente tant qu'on n'est pas entré
         const a = t * 0.05;
-        const R = Math.min(Math.max(clampR * 0.8, 12), 30);
-        const H = Math.min(Math.max(clampR * 0.5, 9), 18);
-        camera.position.set(Math.sin(a) * R, groundEye + H, Math.cos(a) * R);
-        camera.lookAt(0, groundEye, 0);
+        camera.position.set(Math.sin(a) * orbitR, orbitH, Math.cos(a) * orbitR);
+        camera.lookAt(0, lookY, 0);
       }
       renderer.render(scene, camera);
       raf = requestAnimationFrame(tick);

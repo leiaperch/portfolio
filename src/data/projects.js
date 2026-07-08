@@ -95,7 +95,14 @@ export const projects = [
     tech: ['Unity', 'C#', 'Blender'],
     year: '2023',
     mode: 'orbit',
-    scene: null,
+    scene: {
+      skybox: [
+        'models/forlorn/skybox/px.webp', 'models/forlorn/skybox/nx.webp',
+        'models/forlorn/skybox/py.webp', 'models/forlorn/skybox/ny.webp',
+        'models/forlorn/skybox/pz.webp', 'models/forlorn/skybox/nz.webp',
+      ],
+      // ship: à brancher quand Léïa exporte un vaisseau en FBX/glb
+    },
     embed: null,
     summary: {
       fr: 'TPS spatial réalisé à EPITA Toulouse, en équipe de 4, sur 6 mois. Développement quasi autonome sous Unity, modélisation Blender et scripts C#.',

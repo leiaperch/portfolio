@@ -520,6 +520,14 @@ export function createProjectScene(canvas, opts = {}) {
     buildAura();
   }
 
+  // skybox cubemap (fond spatial) — réfléchie sur les modèles métalliques
+  if (model && model.skybox) {
+    const cube = new THREE.CubeTextureLoader().load(model.skybox);
+    cube.colorSpace = THREE.SRGBColorSpace;
+    scene.background = cube;
+    scene.environment = cube;
+  }
+
   if (model && model.fbx) {
     // FBX + textures PBR (ORM) fournies
     const texL = new THREE.TextureLoader();
@@ -541,10 +549,10 @@ export function createProjectScene(canvas, opts = {}) {
       obj.rotation.x = Math.PI / 2; // le livre est à plat dans le FBX → couverture verte face caméra
       afterHero(obj);
     }, undefined, (err) => { console.warn('FBX load failed:', err); addPlaceholder(); });
-  } else if (model) {
+  } else if (model && (Array.isArray(model) || typeof model === 'string' || model.glb)) {
     const draco = new DRACOLoader().setDecoderPath('/draco/');
     const loader = new GLTFLoader().setDRACOLoader(draco);
-    const url = Array.isArray(model) ? model[0] : model;
+    const url = Array.isArray(model) ? model[0] : (model.glb || model);
     loader.load(url, (g) => afterHero(g.scene),
       undefined, (err) => { console.warn('glTF load failed, using placeholder:', err); addPlaceholder(); });
   } else {

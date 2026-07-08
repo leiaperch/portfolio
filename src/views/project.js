@@ -74,7 +74,7 @@ export function renderProject(id, { onCursorRefresh } = {}) {
   function updateTexts() {
     const q = (s) => view.querySelector(s);
     const back = q('.pv-back'); back.textContent = t('pv_back'); back.dataset.cursor = t('cur_back');
-    q('.pv-crumb').textContent = `${t('pv_realm')} ${p.realm} — ${t('realm_' + p.realm)}`;
+    q('.pv-crumb').textContent = t('realm_' + p.realm);
     q('.pv-type').textContent = `${tv(p.type)} — ${p.year}`;
     q('.pv-summary').textContent = tv(p.summary);
     q('.pv-next-lbl').textContent = t('pv_next_lbl');

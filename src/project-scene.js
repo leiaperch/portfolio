@@ -275,6 +275,7 @@ export function createProjectScene(canvas, opts = {}) {
 
     let embers = null;
     let clampR = 16;
+    let groundEye = 1.6;
     const minR = model ? 0 : 1.3;
 
     if (model) {
@@ -289,20 +290,40 @@ export function createProjectScene(canvas, opts = {}) {
       const ground = new THREE.Mesh(
         new THREE.CircleGeometry(150, 64),
         new THREE.MeshStandardMaterial({ color: 0x2a2620, roughness: 1 }));
-      ground.rotation.x = -Math.PI / 2; ground.position.y = -0.02; scene.add(ground);
+      ground.rotation.x = -Math.PI / 2; scene.add(ground);
       fireLight = new THREE.PointLight(0xff7a2e, 26, 45, 2);
-      fireLight.position.set(0, 1.4, 0); scene.add(fireLight);
+      scene.add(fireLight);
 
       let done = 0;
       const finalize = () => {
+        // retire arbres / buissons / souches (non texturés à l'export)
+        const kill = [];
+        root.traverse((o) => { if (/tree|bush|stump/i.test(o.name)) kill.push(o); });
+        kill.forEach((o) => o.parent && o.parent.remove(o));
+
         const box = new THREE.Box3().setFromObject(root);
-        if (!box.isEmpty()) {
-          const c = box.getCenter(new THREE.Vector3());
-          root.position.x -= c.x; root.position.z -= c.z; root.position.y -= box.min.y;
-          const size = box.getSize(new THREE.Vector3());
-          clampR = Math.max(size.x, size.z) * 0.5 + 3;
-          camera.position.set(0, 1.6, Math.min(clampR * 0.42, 14));
-        }
+        if (box.isEmpty()) return;
+        const c = box.getCenter(new THREE.Vector3());
+        root.position.x -= c.x; root.position.z -= c.z; // recentre horizontalement
+        root.updateMatrixWorld(true);
+        const size = box.getSize(new THREE.Vector3());
+        clampR = Math.min(Math.max(size.x, size.z) * 0.5 + 3, 40);
+
+        // sol = bas percentile des bases de meshes (ignore les outliers profonds ;
+        // pas de terrain exporté, les bâtiments sont snappés ~0 dans Unity)
+        const ys = [];
+        root.traverse((o) => {
+          if (o.isMesh && o.geometry) {
+            o.geometry.computeBoundingBox();
+            ys.push(o.geometry.boundingBox.clone().applyMatrix4(o.matrixWorld).min.y);
+          }
+        });
+        ys.sort((a, b) => a - b);
+        const groundY = ys.length ? ys[Math.floor(ys.length * 0.15)] : box.min.y;
+        groundEye = groundY + 1.7;
+        ground.position.y = groundY - 0.05;
+        fireLight.position.set(0, groundY + 1.4, 0);
+        camera.position.set(0, groundEye, Math.min(clampR * 0.42, 14));
       };
       paths.forEach((p) => {
         loader.load(p, (g) => { root.add(g.scene); if (++done === paths.length) finalize(); },
@@ -399,14 +420,14 @@ export function createProjectScene(canvas, opts = {}) {
         const rr = Math.hypot(p.x, p.z);
         if (rr > clampR) { p.x *= clampR / rr; p.z *= clampR / rr; } // reste dans le camp
         if (minR && rr < minR) { p.x *= minR / rr; p.z *= minR / rr; } // ne traverse pas le feu
-        p.y = 1.6;
+        p.y = groundEye;
       } else if (!reducedMotion) {
         // vue 3/4 aérienne lente tant qu'on n'est pas entré
         const a = t * 0.05;
         const R = Math.min(Math.max(clampR * 0.8, 12), 30);
         const H = Math.min(Math.max(clampR * 0.5, 9), 18);
-        camera.position.set(Math.sin(a) * R, H, Math.cos(a) * R);
-        camera.lookAt(0, 2, 0);
+        camera.position.set(Math.sin(a) * R, groundEye + H, Math.cos(a) * R);
+        camera.lookAt(0, groundEye, 0);
       }
       renderer.render(scene, camera);
       raf = requestAnimationFrame(tick);

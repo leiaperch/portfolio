@@ -52,101 +52,212 @@ export function createProjectScene(canvas, opts = {}) {
 
   // ============================ MODE EXPLORE ============================
   if (mode === 'explore') {
-    scene.fog = new THREE.FogExp2(0x0a0807, 0.05);
-    camera.position.set(0, 1.6, 9);
+    scene.fog = new THREE.FogExp2(0x5f5952, 0.028);
+    camera.position.set(0, 1.6, 10);
 
-    const hemi = new THREE.HemisphereLight(0x3a3128, 0x090705, 0.4);
-    scene.add(hemi);
+    scene.add(new THREE.HemisphereLight(0x8a8478, 0x241f18, 0.65));
+    const sun = new THREE.DirectionalLight(0xb9b0a0, 0.9);
+    sun.position.set(-6, 10, 4);
+    scene.add(sun);
 
     let campfire = null;
     let fireLight = null;
 
     function buildCamp() {
-      // sol
-      const ground = new THREE.Mesh(
-        new THREE.CircleGeometry(40, 64),
-        new THREE.MeshStandardMaterial({ color: 0x11100c, roughness: 1, metalness: 0 })
-      );
-      ground.rotation.x = -Math.PI / 2;
-      scene.add(ground);
+      const M = (c, r = 1) => new THREE.MeshStandardMaterial({ color: c, roughness: r });
+      const mGround = M(0x2f2a22), mPlaza = M(0x4a4236), mPath = M(0x5a5044);
+      const mWood = M(0x3a2a1a), mBeam = M(0x241a12), mPlaster = M(0x8a7f68, 0.95);
+      const mRoof = M(0x4a3320), mTile = M(0x33302c), mCanvas = M(0xb3a888, 0.95),
+        mCanvasG = M(0x555c42, 0.95), mStripe = M(0x7a3b34, 0.95);
 
-      // feu de camp
-      fireLight = new THREE.PointLight(0xff7a2e, 40, 30, 2);
-      fireLight.position.set(0, 1.2, 0);
-      scene.add(fireLight);
-      campfire = new THREE.Mesh(
-        new THREE.SphereGeometry(0.35, 16, 16),
-        new THREE.MeshStandardMaterial({ color: 0xff8a3a, emissive: 0xff5a1e, emissiveIntensity: 3 })
-      );
-      campfire.position.set(0, 0.4, 0);
-      scene.add(campfire);
-      // bûches
-      const logMat = new THREE.MeshStandardMaterial({ color: 0x2a1d12, roughness: 1 });
-      for (let i = 0; i < 5; i++) {
-        const log = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.09, 1.1, 8), logMat);
-        log.position.set(Math.cos((i / 5) * 6.28) * 0.35, 0.12, Math.sin((i / 5) * 6.28) * 0.35);
-        log.rotation.set(Math.PI / 2, (i / 5) * 6.28, 0.4);
-        scene.add(log);
-      }
-
-      // tentes en cercle
-      const clothMat = new THREE.MeshStandardMaterial({ color: 0x241f2c, roughness: 0.95 });
-      const woodMat = new THREE.MeshStandardMaterial({ color: 0x1b1620, roughness: 1 });
-      const N = 7;
-      for (let i = 0; i < N; i++) {
-        const a = (i / N) * Math.PI * 2;
-        const R = 7;
-        const g = new THREE.Group();
-        const tent = new THREE.Mesh(new THREE.ConeGeometry(1.5, 2, 5), clothMat);
-        tent.position.y = 1;
-        const base = new THREE.Mesh(new THREE.CylinderGeometry(1.5, 1.5, 0.15, 5), woodMat);
-        base.position.y = 0.07;
-        g.add(tent, base);
-        g.position.set(Math.cos(a) * R, 0, Math.sin(a) * R);
-        g.rotation.y = -a;
-        scene.add(g);
-      }
-
-      // caisses éparses
-      const crateMat = new THREE.MeshStandardMaterial({ color: 0x2e2618, roughness: 0.9 });
-      for (let i = 0; i < 8; i++) {
-        const s = 0.5 + Math.random() * 0.4;
-        const crate = new THREE.Mesh(new THREE.BoxGeometry(s, s, s), crateMat);
-        const a = Math.random() * 6.28, r = 2.5 + Math.random() * 6;
-        crate.position.set(Math.cos(a) * r, s / 2, Math.sin(a) * r);
-        crate.rotation.y = Math.random() * 6.28;
-        scene.add(crate);
-      }
-
-      // palissade de pieux tout autour (porte au nord = -Z)
-      const stakeMat = new THREE.MeshStandardMaterial({ color: 0x241a12, roughness: 1 });
-      const PR = 15, stakes = 76;
-      for (let i = 0; i < stakes; i++) {
-        const a = (i / stakes) * Math.PI * 2;
-        if (Math.abs(Math.sin(a) + 1) < 0.14 && Math.cos(a) > -0.4 && Math.cos(a) < 0.4) continue; // trou de porte au nord
-        const h = 3 + Math.random() * 0.7;
-        const stake = new THREE.Mesh(new THREE.CylinderGeometry(0.11, 0.17, h, 6), stakeMat);
-        stake.position.set(Math.cos(a) * PR, h / 2 - 0.2, Math.sin(a) * PR);
-        stake.rotation.z = (Math.random() - 0.5) * 0.08;
-        stake.rotation.x = (Math.random() - 0.5) * 0.05;
-        scene.add(stake);
-      }
-
-      // deux tours de guet encadrant la porte nord
-      const towerMat = new THREE.MeshStandardMaterial({ color: 0x1b140d, roughness: 1 });
-      const roofMat = new THREE.MeshStandardMaterial({ color: 0x241f2c, roughness: 0.95 });
-      [-3.4, 3.4].forEach((tx) => {
-        const g = new THREE.Group();
-        const body = new THREE.Mesh(new THREE.BoxGeometry(1.7, 4.2, 1.7), towerMat);
-        body.position.y = 2.1;
-        const roof = new THREE.Mesh(new THREE.ConeGeometry(1.5, 1.3, 4), roofMat);
-        roof.position.y = 4.85; roof.rotation.y = Math.PI / 4;
-        g.add(body, roof);
-        g.position.set(tx, 0, -15);
-        scene.add(g);
+      // --- sol : grand disque + place claire + chemins ---
+      const ground = new THREE.Mesh(new THREE.CircleGeometry(45, 64), mGround);
+      ground.rotation.x = -Math.PI / 2; scene.add(ground);
+      const plaza = new THREE.Mesh(new THREE.CircleGeometry(13, 48), mPlaza);
+      plaza.rotation.x = -Math.PI / 2; plaza.position.y = 0.01; scene.add(plaza);
+      [-Math.PI / 2, Math.PI * 0.18, Math.PI * 0.85].forEach((a) => {
+        const path = new THREE.Mesh(new THREE.PlaneGeometry(3, 26), mPath);
+        path.rotation.x = -Math.PI / 2; path.rotation.z = a;
+        path.position.set(Math.cos(a) * 9, 0.02, Math.sin(a) * 9);
+        scene.add(path);
       });
 
-      // braises qui montent
+      // --- helpers ---
+      const tentGeo = (() => {
+        const s = new THREE.Shape();
+        s.moveTo(-1.4, 0); s.lineTo(1.4, 0); s.lineTo(0, 1.9); s.lineTo(-1.4, 0);
+        return new THREE.ExtrudeGeometry(s, { depth: 3.2, bevelEnabled: false });
+      })();
+      const prism = (halfW, h, depth) => {
+        const s = new THREE.Shape();
+        s.moveTo(-halfW, 0); s.lineTo(halfW, 0); s.lineTo(0, h); s.lineTo(-halfW, 0);
+        return new THREE.ExtrudeGeometry(s, { depth, bevelEnabled: false });
+      };
+      function tent(x, z, rot, mat) {
+        const m = new THREE.Mesh(tentGeo, mat); m.position.z = -1.6;
+        const g = new THREE.Group(); g.add(m);
+        g.position.set(x, 0, z); g.rotation.y = rot; scene.add(g); return g;
+      }
+      function house(x, z, rot, w, d, h, chimney) {
+        const g = new THREE.Group();
+        const body = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mPlaster);
+        body.position.y = h / 2; g.add(body);
+        [[-1, -1], [1, -1], [1, 1], [-1, 1]].forEach(([sx, sz]) => {
+          const beam = new THREE.Mesh(new THREE.BoxGeometry(0.16, h, 0.16), mBeam);
+          beam.position.set((sx * w) / 2, h / 2, (sz * d) / 2); g.add(beam);
+        });
+        const roof = new THREE.Mesh(prism(w / 2 + 0.3, 1.3, d + 0.5), mRoof);
+        roof.position.set(0, h, -(d + 0.5) / 2); g.add(roof);
+        if (chimney) {
+          const ch = new THREE.Mesh(new THREE.BoxGeometry(0.5, 1.6, 0.5), mTile);
+          ch.position.set(w / 2 - 0.6, h + 1, 0); g.add(ch);
+        }
+        g.position.set(x, 0, z); g.rotation.y = rot; scene.add(g); return g;
+      }
+      function tower(x, z) {
+        const g = new THREE.Group();
+        [[-1, -1], [1, -1], [1, 1], [-1, 1]].forEach(([sx, sz]) => {
+          const leg = new THREE.Mesh(new THREE.BoxGeometry(0.18, 4.6, 0.18), mWood);
+          leg.position.set(sx * 0.7, 2.3, sz * 0.7); g.add(leg);
+        });
+        const platform = new THREE.Mesh(new THREE.BoxGeometry(2, 0.2, 2), mWood);
+        platform.position.y = 4; g.add(platform);
+        const roof = new THREE.Mesh(prism(1.2, 1, 2), mRoof);
+        roof.position.set(0, 4.2, -1); g.add(roof);
+        g.position.set(x, 0, z); scene.add(g); return g;
+      }
+      function stall(x, z, rot) {
+        const g = new THREE.Group();
+        [[-1, -1], [1, -1], [1, 1], [-1, 1]].forEach(([sx, sz]) => {
+          const post = new THREE.Mesh(new THREE.BoxGeometry(0.12, 2, 0.12), mWood);
+          post.position.set(sx, 1, sz * 0.7); g.add(post);
+        });
+        const awning = new THREE.Mesh(new THREE.BoxGeometry(2.6, 0.08, 1.8), mStripe);
+        awning.position.set(0, 2, 0); awning.rotation.x = 0.12; g.add(awning);
+        const table = new THREE.Mesh(new THREE.BoxGeometry(2.4, 0.1, 1.1), mWood);
+        table.position.set(0, 0.95, 0); g.add(table);
+        for (let i = 0; i < 4; i++) {
+          const good = new THREE.Mesh(new THREE.SphereGeometry(0.16, 8, 8), M(0xb5722e, 0.8));
+          good.position.set(-0.9 + i * 0.55, 1.15, (Math.random() - 0.5) * 0.6); g.add(good);
+        }
+        g.position.set(x, 0, z); g.rotation.y = rot; scene.add(g); return g;
+      }
+      function wagon(x, z, rot) {
+        const g = new THREE.Group();
+        const body = new THREE.Mesh(new THREE.BoxGeometry(2.6, 1.3, 1.4), mWood);
+        body.position.y = 1; g.add(body);
+        const top = new THREE.Mesh(prism(1.4, 0.9, 2.6), mCanvas);
+        top.rotation.y = Math.PI / 2; top.position.set(-1.3, 1.6, 0); g.add(top);
+        [[-1, -1], [1, -1], [-1, 1], [1, 1]].forEach(([sx, sz]) => {
+          const wheel = new THREE.Mesh(new THREE.CylinderGeometry(0.5, 0.5, 0.15, 12), mBeam);
+          wheel.rotation.z = Math.PI / 2; wheel.position.set(sx, 0.5, sz * 0.7); g.add(wheel);
+        });
+        g.position.set(x, 0, z); g.rotation.y = rot; scene.add(g); return g;
+      }
+      function deadTree(x, z) {
+        const g = new THREE.Group();
+        const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.2, 3, 6), mBeam);
+        trunk.position.y = 1.5; g.add(trunk);
+        for (let i = 0; i < 4; i++) {
+          const br = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.09, 1.2, 5), mBeam);
+          br.position.y = 1.6 + i * 0.35;
+          br.rotation.z = (Math.random() - 0.5) * 1.6; br.rotation.y = Math.random() * 6.28;
+          g.add(br);
+        }
+        g.position.set(x, 0, z); g.rotation.y = Math.random() * 6.28; scene.add(g); return g;
+      }
+      function horse(x, z, rot) {
+        const g = new THREE.Group(); const mH = M(0xd8d2c4, 0.9);
+        const body = new THREE.Mesh(new THREE.BoxGeometry(1.6, 0.8, 0.6), mH); body.position.y = 1.1; g.add(body);
+        const neck = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.8, 0.4), mH);
+        neck.position.set(0.8, 1.5, 0); neck.rotation.z = -0.5; g.add(neck);
+        const head = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.35, 0.3), mH);
+        head.position.set(1.2, 1.75, 0); g.add(head);
+        [[-0.6, -0.2], [0.6, -0.2], [-0.6, 0.2], [0.6, 0.2]].forEach(([lx, lz]) => {
+          const leg = new THREE.Mesh(new THREE.BoxGeometry(0.18, 1, 0.18), mH);
+          leg.position.set(lx, 0.5, lz); g.add(leg);
+        });
+        g.position.set(x, 0, z); g.rotation.y = rot; scene.add(g); return g;
+      }
+
+      // --- feu de camp ---
+      fireLight = new THREE.PointLight(0xff7a2e, 34, 26, 2);
+      fireLight.position.set(0, 1.2, 0); scene.add(fireLight);
+      campfire = new THREE.Mesh(new THREE.SphereGeometry(0.32, 12, 12),
+        new THREE.MeshStandardMaterial({ color: 0xff8a3a, emissive: 0xff5a1e, emissiveIntensity: 3 }));
+      campfire.position.set(0, 0.4, 0); scene.add(campfire);
+      for (let i = 0; i < 5; i++) {
+        const a = (i / 5) * 6.28;
+        const log = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.09, 1.1, 6), mBeam);
+        log.position.set(Math.cos(a) * 0.35, 0.12, Math.sin(a) * 0.35);
+        log.rotation.set(Math.PI / 2, a, 0.4); scene.add(log);
+      }
+
+      // --- tentes (grappe ouest/sud) ---
+      tent(-5, 2.5, 0.3, mCanvas); tent(-6.5, -0.5, -0.2, mCanvasG);
+      tent(-4.5, -3, 0.6, mCanvas); tent(2.5, 5, 2.4, mCanvasG); tent(4.8, 4, 2.9, mCanvas);
+
+      // --- maisons à colombages (est / nord-est) ---
+      house(7, -0.5, -1.9, 3.6, 3, 2.6, true); // forge à cheminée
+      house(6.5, -4.5, -2.4, 3, 2.6, 2.3, false);
+      house(4.5, 6.5, 3.0, 3, 2.6, 2.3, false);
+
+      // --- marché (sud) ---
+      stall(-1.5, 8, Math.PI); stall(1.8, 8.3, Math.PI); stall(-4.5, 7, Math.PI * 0.9);
+
+      // --- chariot marchand (ouest) ---
+      wagon(-8, -3.5, 0.4);
+
+      // --- enclos + chevaux (vers la porte) ---
+      (function paddock() {
+        const cx = -1, cz = -7, w = 5, d = 3.5;
+        for (let i = 0; i <= 10; i++) {
+          const px = -w / 2 + (i / 10) * w;
+          [-d / 2, d / 2].forEach((pz) => {
+            const p = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 1, 5), mWood);
+            p.position.set(cx + px, 0.5, cz + pz); scene.add(p);
+          });
+        }
+        [-d / 2, d / 2].forEach((pz) => {
+          const rail = new THREE.Mesh(new THREE.BoxGeometry(w, 0.06, 0.06), mWood);
+          rail.position.set(cx, 0.7, cz + pz); scene.add(rail);
+        });
+        horse(cx - 1, cz, 0.6); horse(cx + 1.2, cz + 0.5, -0.8);
+      })();
+
+      // --- mannequins d'entraînement ---
+      for (let i = 0; i < 3; i++) {
+        const g = new THREE.Group();
+        const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.08, 1.7, 6), mWood);
+        pole.position.y = 0.85; g.add(pole);
+        const body = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.7, 0.3), M(0x6a5a3a, 0.9));
+        body.position.y = 1.4; g.add(body);
+        const arms = new THREE.Mesh(new THREE.BoxGeometry(1.3, 0.15, 0.15), mWood);
+        arms.position.y = 1.5; g.add(arms);
+        g.position.set(8 + i * 1.2, 0, 2.5 - i * 0.6); scene.add(g);
+      }
+
+      // --- palissade (porte au nord = -Z) ---
+      const PR = 14, stakes = 72;
+      for (let i = 0; i < stakes; i++) {
+        const a = (i / stakes) * Math.PI * 2;
+        if (Math.sin(a) < -0.86 && Math.abs(Math.cos(a)) < 0.42) continue; // trou porte nord
+        const h = 2.6 + Math.random() * 0.6;
+        const stake = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.16, h, 6), mWood);
+        stake.position.set(Math.cos(a) * PR, h / 2 - 0.15, Math.sin(a) * PR);
+        stake.rotation.z = (Math.random() - 0.5) * 0.07;
+        scene.add(stake);
+      }
+      tower(-3, -13.5); tower(3, -13.5);
+
+      // --- arbres morts (dehors + quelques dedans) ---
+      for (let i = 0; i < 14; i++) {
+        const a = Math.random() * 6.28, r = 16 + Math.random() * 10;
+        deadTree(Math.cos(a) * r, Math.sin(a) * r);
+      }
+      deadTree(-9, 5); deadTree(9, 6);
+
+      // --- braises ---
       const emberGeo = new THREE.BufferGeometry();
       const cnt = 120, pos = new Float32Array(cnt * 3);
       for (let i = 0; i < cnt; i++) {
@@ -155,10 +266,8 @@ export function createProjectScene(canvas, opts = {}) {
         pos[i * 3 + 2] = (Math.random() - 0.5) * 1.4;
       }
       emberGeo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
-      const embers = new THREE.Points(
-        emberGeo,
-        new THREE.PointsMaterial({ color: 0xff7a3a, size: 0.05, transparent: true, opacity: 0.9 })
-      );
+      const embers = new THREE.Points(emberGeo,
+        new THREE.PointsMaterial({ color: 0xff7a3a, size: 0.05, transparent: true, opacity: 0.9 }));
       scene.add(embers);
       return embers;
     }

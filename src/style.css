@@ -171,10 +171,24 @@ body.view-project{overflow:hidden}
 .pv-feat p{font-size:14px;line-height:1.6;color:var(--dim)}
 .pv-empty{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);
   border:1px dashed var(--line);border-radius:6px;padding:30px;text-align:center}
-.pv-gallery{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px}
-.pv-shot{margin:0;border:1px solid var(--line);border-radius:6px;overflow:hidden;background:#0b0d14;aspect-ratio:16/10}
-.pv-shot img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .8s cubic-bezier(.2,.8,.2,1)}
-.pv-shot:hover img{transform:scale(1.05)}
+/* galerie = pellicule cinématique horizontale, pleine largeur, scroll-snap */
+.pv-gallery{display:flex;gap:20px;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;
+  width:100vw;margin-left:calc(50% - 50vw);
+  padding:6px max(30px, calc(50vw - 430px)) 28px;
+  scrollbar-width:thin;scrollbar-color:var(--line) transparent}
+.pv-gallery::-webkit-scrollbar{height:6px}
+.pv-gallery::-webkit-scrollbar-track{background:transparent}
+.pv-gallery::-webkit-scrollbar-thumb{background:var(--line);border-radius:10px}
+.pv-shot{flex:0 0 auto;width:min(74vw,660px);aspect-ratio:16/9;margin:0;position:relative;
+  border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#0b0d14;
+  scroll-snap-align:center;transition:border-color .4s}
+.pv-shot::after{content:"";position:absolute;inset:0;pointer-events:none;
+  box-shadow:inset 0 -60px 80px -40px rgba(0,0,0,.7)}
+.pv-shot:hover{border-color:var(--coral)}
+.pv-shot img{width:100%;height:100%;object-fit:cover;display:block;filter:saturate(.92);
+  transition:transform 1.1s cubic-bezier(.2,.8,.2,1),filter .5s}
+.pv-shot:hover img{transform:scale(1.04);filter:saturate(1.05)}
+.pv-gallery-count{font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:none;color:var(--coral)}
 
 .pv-foot{border-top:1px solid var(--line);margin-top:40px}
 .pv-next{display:flex;flex-direction:column;gap:8px;padding:60px 30px;text-decoration:none;text-align:right;

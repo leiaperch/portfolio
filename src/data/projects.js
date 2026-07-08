@@ -15,7 +15,7 @@ export const projects = [
     type: { fr: 'Action-RPG · Open World', en: 'Action-RPG · Open World' },
     tech: ['Unity 6', 'URP', 'C#', 'Blender', 'World Design'],
     year: '2026',
-    mode: 'explore',
+    mode: 'orbit',
     scene: ['models/valmyr/ruins.glb?v=1'],
     embed: null,
     status: {

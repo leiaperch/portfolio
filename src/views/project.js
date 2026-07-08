@@ -90,7 +90,8 @@ export function renderProject(id, { onCursorRefresh } = {}) {
 
     const gw = q('.pv-gallery-wrap');
     if (p.gallery?.length) {
-      gw.innerHTML = `<h3 class="pv-sec-h">${t('pv_gallery')}</h3>
+      const hint = p.gallery.length > 1 ? `<span class="pv-gallery-count">glisser ›</span>` : '';
+      gw.innerHTML = `<h3 class="pv-sec-h">${t('pv_gallery')} ${hint}</h3>
         <div class="pv-gallery">${p.gallery
           .map((src) => `<figure class="pv-shot"><img src="${src}" alt="${p.title}" loading="lazy" /></figure>`)
           .join('')}</div>`;

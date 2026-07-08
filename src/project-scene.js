@@ -32,9 +32,10 @@ export function createProjectScene(canvas, opts = {}) {
     const box = new THREE.Box3().setFromObject(obj);
     const size = box.getSize(new THREE.Vector3());
     const center = box.getCenter(new THREE.Vector3());
-    obj.position.sub(center);
     const maxDim = Math.max(size.x, size.y, size.z) || 1;
-    obj.scale.setScalar(target / maxDim);
+    const s = target / maxDim;
+    obj.scale.setScalar(s);
+    obj.position.set(-center.x * s, -center.y * s, -center.z * s); // recentre APRÈS le scale
   }
 
   function resize() {
@@ -471,8 +472,42 @@ export function createProjectScene(canvas, opts = {}) {
     group.add(placeholder);
   }
   if (model) {
-    new GLTFLoader().load(model, (g) => { fitObject(g.scene); group.add(g.scene); }, undefined,
-      (err) => { console.warn('glTF load failed, using placeholder:', err); addPlaceholder(); });
+    const draco = new DRACOLoader().setDecoderPath('/draco/');
+    const loader = new GLTFLoader().setDRACOLoader(draco);
+    const url = Array.isArray(model) ? model[0] : model;
+    loader.load(url, (g) => {
+      // ne garde que les belles pièces (arche + colonnes) ; retire murs/tour/cercles
+      const kill = [];
+      g.scene.traverse((o) => { if (/wall|tower|circle|circular/i.test(o.name)) kill.push(o); });
+      kill.forEach((o) => o.parent && o.parent.remove(o));
+
+      // trouve l'arche + les colonnes (mesh instancié épars)
+      let arch = null, cols = null;
+      g.scene.traverse((o) => {
+        if (o.isInstancedMesh) cols = o;
+        else if (/arch/i.test(o.name)) arch = o;
+      });
+
+      // regroupe les colonnes en cercle serré autour de l'arche
+      if (cols && arch) {
+        const abox = new THREE.Box3().setFromObject(arch);
+        const ac = abox.getCenter(new THREE.Vector3());
+        const m = new THREE.Matrix4(), p = new THREE.Vector3(), q = new THREE.Quaternion(), s = new THREE.Vector3();
+        cols.getMatrixAt(0, m); m.decompose(p, q, s); // récupère échelle/orientation d'origine
+        const parent = cols.parent, n = cols.count;
+        cols.removeFromParent();
+        for (let i = 0; i < n; i++) {
+          const a = (i / n) * Math.PI * 2;
+          const col = new THREE.Mesh(cols.geometry, cols.material);
+          col.position.set(ac.x + Math.cos(a) * 5.5, abox.min.y, ac.z + Math.sin(a) * 5.5);
+          col.quaternion.copy(q); col.scale.copy(s);
+          parent.add(col);
+        }
+      }
+
+      fitObject(g.scene, 3);
+      group.add(g.scene);
+    }, undefined, (err) => { console.warn('glTF load failed, using placeholder:', err); addPlaceholder(); });
   } else {
     addPlaceholder();
   }

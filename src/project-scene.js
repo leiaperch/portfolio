@@ -472,7 +472,7 @@ export function createProjectScene(canvas, opts = {}) {
     placeholder = new THREE.Mesh(new THREE.TorusKnotGeometry(0.85, 0.27, 240, 36), mat);
     group.add(placeholder);
   }
-  let hero = null, auraFx = null;
+  let hero = null, auraFx = null, heroBaseY = 0;
 
   // sprite radial violet (glow)
   function glowSprite(op, sc) {
@@ -491,7 +491,8 @@ export function createProjectScene(canvas, opts = {}) {
 
   // aura magique recréée (VFX Unity non exportable) : glow pulsant + motes + lumière
   function buildAura() {
-    const outer = glowSprite(0.5, 3.1), inner = glowSprite(0.9, 1.5);
+    const outer = glowSprite(0.42, 3.2), inner = glowSprite(0.55, 1.9);
+    outer.position.set(0, 0, -1.5); inner.position.set(0, 0, -1.1); // derrière le livre → halo, pas de recouvrement
     group.add(outer, inner);
     const cnt = 44, pos = new Float32Array(cnt * 3), seed = [];
     for (let i = 0; i < cnt; i++) {
@@ -506,13 +507,14 @@ export function createProjectScene(canvas, opts = {}) {
       blending: THREE.AdditiveBlending, depthWrite: false,
     }));
     group.add(motes);
-    const light = new THREE.PointLight(0x9a6bff, 12, 18, 2);
+    const light = new THREE.PointLight(0x9a6bff, 6, 18, 2);
     light.position.set(0, 0.3, 1.4); scene.add(light);
     auraFx = { outer, inner, motes, mg, seed, light };
   }
 
   function afterHero(obj) {
     fitObject(obj, 2.4);
+    heroBaseY = obj.position.y;
     hero = obj;
     group.add(obj);
     buildAura();
@@ -536,6 +538,7 @@ export function createProjectScene(canvas, opts = {}) {
           });
         }
       });
+      obj.rotation.x = Math.PI / 2; // le livre est à plat dans le FBX → couverture verte face caméra
       afterHero(obj);
     }, undefined, (err) => { console.warn('FBX load failed:', err); addPlaceholder(); });
   } else if (model) {
@@ -564,14 +567,14 @@ export function createProjectScene(canvas, opts = {}) {
     controls.update();
     if (placeholder && !reducedMotion) placeholder.rotation.x += 0.002;
     if (hero && !reducedMotion) {
-      hero.position.y = Math.sin(t * 1.1) * 0.06;   // flottement
-      hero.rotation.y = t * 0.35;                    // rotation douce
+      hero.position.y = heroBaseY + Math.sin(t * 1.1) * 0.06; // flottement
+      hero.rotation.y = t * 0.35;                             // rotation douce
     }
     if (auraFx && !reducedMotion) {
       const pulse = 1 + Math.sin(t * 2) * 0.08;
-      auraFx.outer.scale.setScalar(3.1 * pulse);
-      auraFx.inner.scale.setScalar(1.5 * (1 + Math.sin(t * 2 + 1) * 0.12));
-      auraFx.light.intensity = 10 + Math.sin(t * 2.4) * 4;
+      auraFx.outer.scale.setScalar(3.2 * pulse);
+      auraFx.inner.scale.setScalar(1.9 * (1 + Math.sin(t * 2 + 1) * 0.12));
+      auraFx.light.intensity = 6 + Math.sin(t * 2.4) * 2.5;
       const p = auraFx.mg.attributes.position;
       for (let i = 0; i < auraFx.seed.length; i++) {
         const s = auraFx.seed[i];

@@ -90,11 +90,14 @@ export function renderProject(id, { onCursorRefresh } = {}) {
 
     const gw = q('.pv-gallery-wrap');
     if (p.gallery?.length) {
-      const hint = p.gallery.length > 1 ? `<span class="pv-gallery-count">glisser ›</span>` : '';
-      gw.innerHTML = `<h3 class="pv-sec-h">${t('pv_gallery')} ${hint}</h3>
-        <div class="pv-gallery">${p.gallery
-          .map((src) => `<figure class="pv-shot"><img src="${src}" alt="${p.title}" loading="lazy" /></figure>`)
-          .join('')}</div>`;
+      const thumbs = p.gallery
+        .map((src, i) => `<button class="pv-thumb${i === 0 ? ' active' : ''}" data-thumb="${src}" aria-label="Aperçu ${i + 1}"><img src="${src}" alt="" loading="lazy" /></button>`)
+        .join('');
+      gw.innerHTML = `<h3 class="pv-sec-h">${t('pv_gallery')}</h3>
+        <div class="pv-gallery">
+          <figure class="pv-feature"><img class="pv-feature-img" src="${p.gallery[0]}" alt="${p.title}" /></figure>
+          ${p.gallery.length > 1 ? `<div class="pv-thumbs">${thumbs}</div>` : ''}
+        </div>`;
     } else if (p.about) {
       gw.innerHTML = `<h3 class="pv-sec-h">${t('pv_gallery')}</h3>
         <p class="pv-empty">${t('pv_gallery_soon')}</p>`;
@@ -117,6 +120,20 @@ export function renderProject(id, { onCursorRefresh } = {}) {
 
   const offLang = onLang(updateTexts);
   view.querySelector('.lang').addEventListener('click', toggleLang);
+
+  // galerie : clic sur une vignette → change l'image principale (délégation)
+  view.addEventListener('click', (e) => {
+    const thumb = e.target.closest('.pv-thumb');
+    if (!thumb) return;
+    const main = view.querySelector('.pv-feature-img');
+    if (!main || !thumb.dataset.thumb) return;
+    main.style.opacity = '0';
+    const swap = () => { main.src = thumb.dataset.thumb; main.style.opacity = '1'; main.removeEventListener('transitionend', swap); };
+    main.addEventListener('transitionend', swap);
+    setTimeout(swap, 260); // fallback
+    view.querySelectorAll('.pv-thumb').forEach((b) => b.classList.remove('active'));
+    thumb.classList.add('active');
+  });
 
   let exploring = false;
   const scene = createProjectScene(view.querySelector('.pv-canvas'), {

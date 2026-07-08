@@ -1,6 +1,6 @@
-// Vue « page projet » plein écran : hero 3D (orbit ou exploration) + titre + techs,
-// puis description et galerie. Textes bilingues (re-rendus au changement de langue),
-// avec bouton de langue dans l'en-tête. Renvoie un cleanup qui dispose tout.
+// Vue « page projet » plein écran : hero 3D (orbit/exploration) + titre + techs,
+// puis statut, univers, ce que j'ai construit et galerie. Textes bilingues
+// re-rendus au changement de langue, bouton de langue dans l'en-tête.
 
 import { projects } from '../data/projects.js';
 import { createProjectScene } from '../project-scene.js';
@@ -20,17 +20,8 @@ export function renderProject(id, { onCursorRefresh } = {}) {
   const next = projects[(idx + 1) % projects.length];
   const isExplore = p.mode === 'explore';
 
-  const gallery = p.gallery?.length
-    ? `<div class="pv-gallery">${p.gallery
-        .map((src) => `<figure class="pv-shot"><img src="${src}" alt="${p.title}" loading="lazy" /></figure>`)
-        .join('')}</div>`
-    : '';
-
   const overlay = isExplore
-    ? `<div class="pv-scene-hint" id="pv-scene-hint">
-         <span class="pv-scene-verb"></span>
-         <span class="pv-scene-keys"></span>
-       </div>`
+    ? `<div class="pv-scene-hint"><span class="pv-scene-verb"></span><span class="pv-scene-keys"></span></div>`
     : `<div class="pv-hint"></div>`;
 
   const view = document.createElement('div');
@@ -59,7 +50,10 @@ export function renderProject(id, { onCursorRefresh } = {}) {
 
     <section class="pv-body">
       <p class="pv-summary"></p>
-      ${gallery}
+      <div class="pv-status"></div>
+      <div class="pv-about-wrap"></div>
+      <div class="pv-features-wrap"></div>
+      <div class="pv-gallery-wrap"></div>
     </section>
 
     <footer class="pv-foot">
@@ -70,7 +64,6 @@ export function renderProject(id, { onCursorRefresh } = {}) {
     </footer>
   `;
 
-  // Applique/rafraîchit tous les textes traduisibles
   function updateTexts() {
     const q = (s) => view.querySelector(s);
     const back = q('.pv-back'); back.textContent = t('pv_back'); back.dataset.cursor = t('cur_back');
@@ -80,6 +73,34 @@ export function renderProject(id, { onCursorRefresh } = {}) {
     q('.pv-next-lbl').textContent = t('pv_next_lbl');
     q('.pv-next').dataset.cursor = t('cur_next');
     view.querySelector('.lang').dataset.lang = getLang();
+
+    q('.pv-status').innerHTML = p.status ? `<b>●</b> ${tv(p.status)}` : '';
+
+    q('.pv-about-wrap').innerHTML = p.about
+      ? `<h3 class="pv-sec-h">${t('pv_about')}</h3>
+         <div class="pv-about">${tv(p.about).map((par) => `<p>${par}</p>`).join('')}</div>`
+      : '';
+
+    q('.pv-features-wrap').innerHTML = p.features
+      ? `<h3 class="pv-sec-h">${t('pv_features')}</h3>
+         <div class="pv-features">${p.features
+           .map((f) => `<div class="pv-feat"><h4>${tv(f.title)}</h4><p>${tv(f.text)}</p></div>`)
+           .join('')}</div>`
+      : '';
+
+    const gw = q('.pv-gallery-wrap');
+    if (p.gallery?.length) {
+      gw.innerHTML = `<h3 class="pv-sec-h">${t('pv_gallery')}</h3>
+        <div class="pv-gallery">${p.gallery
+          .map((src) => `<figure class="pv-shot"><img src="${src}" alt="${p.title}" loading="lazy" /></figure>`)
+          .join('')}</div>`;
+    } else if (p.about) {
+      gw.innerHTML = `<h3 class="pv-sec-h">${t('pv_gallery')}</h3>
+        <p class="pv-empty">${t('pv_gallery_soon')}</p>`;
+    } else {
+      gw.innerHTML = '';
+    }
+
     if (isExplore) {
       q('.pv-scene-verb').textContent = t('pv_explore_verb');
       q('.pv-scene-keys').textContent = t('pv_explore_keys');
@@ -112,8 +133,6 @@ export function renderProject(id, { onCursorRefresh } = {}) {
       if (!exploring) scene.lock?.();
     });
   }
-
-  onCursorRefresh?.();
 
   return {
     dispose() {

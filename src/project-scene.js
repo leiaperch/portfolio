@@ -52,10 +52,10 @@ export function createProjectScene(canvas, opts = {}) {
 
   // ============================ MODE EXPLORE ============================
   if (mode === 'explore') {
-    scene.fog = new THREE.FogExp2(0x06060c, 0.055);
+    scene.fog = new THREE.FogExp2(0x0a0807, 0.05);
     camera.position.set(0, 1.6, 9);
 
-    const hemi = new THREE.HemisphereLight(0x30364a, 0x080608, 0.35);
+    const hemi = new THREE.HemisphereLight(0x3a3128, 0x090705, 0.4);
     scene.add(hemi);
 
     let campfire = null;
@@ -65,7 +65,7 @@ export function createProjectScene(canvas, opts = {}) {
       // sol
       const ground = new THREE.Mesh(
         new THREE.CircleGeometry(40, 64),
-        new THREE.MeshStandardMaterial({ color: 0x0c0e16, roughness: 1, metalness: 0 })
+        new THREE.MeshStandardMaterial({ color: 0x11100c, roughness: 1, metalness: 0 })
       );
       ground.rotation.x = -Math.PI / 2;
       scene.add(ground);
@@ -117,6 +117,34 @@ export function createProjectScene(canvas, opts = {}) {
         crate.rotation.y = Math.random() * 6.28;
         scene.add(crate);
       }
+
+      // palissade de pieux tout autour (porte au nord = -Z)
+      const stakeMat = new THREE.MeshStandardMaterial({ color: 0x241a12, roughness: 1 });
+      const PR = 15, stakes = 76;
+      for (let i = 0; i < stakes; i++) {
+        const a = (i / stakes) * Math.PI * 2;
+        if (Math.abs(Math.sin(a) + 1) < 0.14 && Math.cos(a) > -0.4 && Math.cos(a) < 0.4) continue; // trou de porte au nord
+        const h = 3 + Math.random() * 0.7;
+        const stake = new THREE.Mesh(new THREE.CylinderGeometry(0.11, 0.17, h, 6), stakeMat);
+        stake.position.set(Math.cos(a) * PR, h / 2 - 0.2, Math.sin(a) * PR);
+        stake.rotation.z = (Math.random() - 0.5) * 0.08;
+        stake.rotation.x = (Math.random() - 0.5) * 0.05;
+        scene.add(stake);
+      }
+
+      // deux tours de guet encadrant la porte nord
+      const towerMat = new THREE.MeshStandardMaterial({ color: 0x1b140d, roughness: 1 });
+      const roofMat = new THREE.MeshStandardMaterial({ color: 0x241f2c, roughness: 0.95 });
+      [-3.4, 3.4].forEach((tx) => {
+        const g = new THREE.Group();
+        const body = new THREE.Mesh(new THREE.BoxGeometry(1.7, 4.2, 1.7), towerMat);
+        body.position.y = 2.1;
+        const roof = new THREE.Mesh(new THREE.ConeGeometry(1.5, 1.3, 4), roofMat);
+        roof.position.y = 4.85; roof.rotation.y = Math.PI / 4;
+        g.add(body, roof);
+        g.position.set(tx, 0, -15);
+        scene.add(g);
+      });
 
       // braises qui montent
       const emberGeo = new THREE.BufferGeometry();

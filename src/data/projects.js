@@ -13,15 +13,66 @@ export const projects = [
     title: 'Cendres de Valmyr',
     realm: 'I',
     type: { fr: 'Action-RPG · Open World', en: 'Action-RPG · Open World' },
-    tech: ['Unity 6', 'C#', 'Blender', 'World Design'],
+    tech: ['Unity 6', 'URP', 'C#', 'Blender', 'World Design'],
     year: '2026',
     mode: 'explore',
     scene: null,
     embed: null,
-    summary: {
-      fr: 'Action-RPG open world 3D dark fantasy développé en solo (Unity 6). Worldbuilding, level design et direction artistique d’un univers complet — ici, balade-toi dans le camp.',
-      en: 'A solo-developed 3D dark-fantasy open-world action-RPG (Unity 6). Worldbuilding, level design and art direction of a full universe — here, wander through the camp.',
+    status: {
+      fr: 'Prototype jouable · Solo · En cours',
+      en: 'Playable prototype · Solo · In progress',
     },
+    summary: {
+      fr: "Action-RPG narratif en monde ouvert, dark fantasy, que je développe seule sous Unity 6 — un prototype jouable où l'on explore les Marches de Cendre d'un royaume rongé par la Flétrissure.",
+      en: 'A solo-built narrative open-world dark-fantasy action-RPG (Unity 6) — a playable prototype exploring the Ash Marches of a kingdom consumed by the Blight.',
+    },
+    about: {
+      fr: [
+        "Valmyr est un royaume tombé sous la Flétrissure, une malédiction qui relève les morts. On y débarque dans les Marches de Cendre : une plaine brûlée traversée par un Pont Brisé et hantée par les goules. Refuge des vivants, le Camp des Survivants sert de premier hub — c'est la scène dans laquelle tu te balades ici.",
+        "L'objectif est une vertical slice : une zone cohérente et jouable de bout en bout — exploration, combat, escalade, dialogues et quêtes — avant d'étendre le monde. Je porte le projet en solo, du game design au level design jusqu'à la direction artistique.",
+      ],
+      en: [
+        'Valmyr is a kingdom fallen to the Blight, a curse that raises the dead. You arrive in the Ash Marches: a scorched plain crossed by a Broken Bridge and haunted by ghouls. The Survivors’ Camp is the living’s refuge and the game’s first hub — the very scene you can wander through here.',
+        'The goal is a vertical slice: one coherent, end-to-end playable zone — exploration, combat, climbing, dialogue and quests — before expanding the world. I run the project solo, from game design and level design to art direction.',
+      ],
+    },
+    features: [
+      {
+        title: { fr: 'Combat & sorts', en: 'Combat & spells' },
+        text: {
+          fr: "Mêlée à la Falcille de Grisval et trois sorts — Flamme, Givre, Foudre — avec VFX, temps de recharge et barre d'action.",
+          en: 'Melee with the Falcille de Grisval plus three spells — Fire, Frost, Lightning — with VFX, cooldowns and an action bar.',
+        },
+      },
+      {
+        title: { fr: 'Escalade', en: 'Climbing' },
+        text: {
+          fr: 'Escalade des ruines : accroche, montée, déplacement latéral et sortie par saut ou mantle, avec animations dédiées.',
+          en: 'Climb the ruins: grab, ascend, strafe and exit by jump or mantle, with dedicated animations.',
+        },
+      },
+      {
+        title: { fr: 'PNJ, dialogues & quêtes', en: 'NPCs, dialogue & quests' },
+        text: {
+          fr: "Un camp peuplé de PNJ animés qui dialoguent et confient des quêtes, sur un bus d'événements et un journal auto-généré.",
+          en: 'A camp of animated NPCs who talk and hand out quests, driven by an event bus and an auto-built journal.',
+        },
+      },
+      {
+        title: { fr: 'Direction artistique', en: 'Art direction' },
+        text: {
+          fr: 'Ambiance cendre et braises : brouillard, post-process ACES, ruines, palissade et feu de camp au cœur du refuge.',
+          en: 'Ash-and-ember mood: fog, ACES post-processing, ruins, palisade and a campfire at the heart of the refuge.',
+        },
+      },
+      {
+        title: { fr: 'IA & caméra', en: 'AI & camera' },
+        text: {
+          fr: 'Caméra 3e personne custom (orbite, anti-clip) et goules à machine à états qui traquent le joueur du pont à la plaine.',
+          en: 'Custom third-person camera (orbit, anti-clip) and state-machine ghouls that hunt you from the bridge to the plain.',
+        },
+      },
+    ],
     cover: null,
     gallery: [],
   },

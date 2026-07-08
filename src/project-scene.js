@@ -524,21 +524,38 @@ export function createProjectScene(canvas, opts = {}) {
   if (model && model.space) {
     const cv = document.createElement('canvas'); cv.width = 2048; cv.height = 1024;
     const x = cv.getContext('2d');
-    x.fillStyle = '#05060a'; x.fillRect(0, 0, 2048, 1024);
-    const blob = (cx, cy, col, r) => {
+    const hx = (a) => Math.round(Math.max(0, Math.min(1, a)) * 255).toString(16).padStart(2, '0');
+    x.fillStyle = '#04050a'; x.fillRect(0, 0, 2048, 1024);
+    const blob = (cx, cy, col, r, a) => {
       const g = x.createRadialGradient(cx, cy, 0, cx, cy, r);
-      g.addColorStop(0, col + 'c0'); g.addColorStop(0.4, col + '40'); g.addColorStop(1, col + '00');
+      g.addColorStop(0, col + hx(a)); g.addColorStop(0.4, col + hx(a * 0.4)); g.addColorStop(1, col + '00');
       x.fillStyle = g; x.beginPath(); x.arc(cx, cy, r, 0, 7); x.fill();
     };
+    const wrap = (cx, cy, col, r, a) => {
+      blob(cx, cy, col, r, a);
+      if (cx < r) blob(cx + 2048, cy, col, r, a);
+      if (cx > 2048 - r) blob(cx - 2048, cy, col, r, a);
+    };
     x.globalCompositeOperation = 'lighter';
-    const clouds = ['#7a5a2a', '#8a6a30', '#3a4a7a', '#2a5a5a', '#6a4a6a', '#7a5a2a', '#3a4a7a', '#5a4a2a', '#7a5a2a'];
-    clouds.forEach((col) => {
-      const cx = Math.random() * 2048, cy = 180 + Math.random() * 664, r = 150 + Math.random() * 140;
-      blob(cx, cy, col, r);
-      if (cx < r) blob(cx + 2048, cy, col, r);
-      if (cx > 2048 - r) blob(cx - 2048, cy, col, r); // raccord horizontal
+    // grandes régions de couleur
+    ['#6a4a22', '#7a5a2a', '#33447a', '#245a55', '#5a3a5a'].forEach((col) => {
+      wrap(Math.random() * 2048, 150 + Math.random() * 724, col, 260 + Math.random() * 180, 0.45);
     });
+    // détail turbulent (beaucoup de petits amas → texture nuageuse)
+    const pal = ['#7a5a2a', '#8a6a30', '#3a4a7a', '#2a5a5a', '#6a4a6a', '#5a4a2a', '#4a3a6a'];
+    for (let i = 0; i < 460; i++) {
+      wrap(Math.random() * 2048, 110 + Math.random() * 804, pal[i % pal.length], 18 + Math.random() * 95, 0.22 + Math.random() * 0.4);
+    }
+    // soleil (halo + cœur)
+    const sunX = 1520, sunY = 330;
+    const sunGrad = x.createRadialGradient(sunX, sunY, 0, sunX, sunY, 380);
+    sunGrad.addColorStop(0, '#fff8ecff'); sunGrad.addColorStop(0.06, '#ffe9b4ff');
+    sunGrad.addColorStop(0.18, '#ffd487aa'); sunGrad.addColorStop(0.5, '#ffcf7033'); sunGrad.addColorStop(1, '#ffcf7000');
+    x.fillStyle = sunGrad; x.beginPath(); x.arc(sunX, sunY, 380, 0, 7); x.fill();
     x.globalCompositeOperation = 'source-over';
+    x.globalAlpha = 0.5; x.fillStyle = '#fff1cf'; x.beginPath(); x.arc(sunX, sunY, 76, 0, 7); x.fill();
+    x.globalAlpha = 1; x.fillStyle = '#fffdf7'; x.beginPath(); x.arc(sunX, sunY, 56, 0, 7); x.fill();
+    // étoiles
     for (let i = 0; i < 1700; i++) {
       const sx = Math.random() * 2048, sy = Math.random() * 1024, t = Math.random();
       const b = t < 0.9 ? 190 + Math.random() * 55 : 255;
@@ -550,6 +567,12 @@ export function createProjectScene(canvas, opts = {}) {
     spaceTex.mapping = THREE.EquirectangularReflectionMapping;
     scene.background = spaceTex;
     scene.environment = pmrem.fromEquirectangular(spaceTex).texture;
+
+    // lumière du soleil (aligné env. sur le disque)
+    const lon = (sunX / 2048) * Math.PI * 2, lat = (0.5 - sunY / 1024) * Math.PI;
+    const sunLight = new THREE.DirectionalLight(0xfff0d8, 2.4);
+    sunLight.position.set(Math.cos(lat) * Math.cos(lon), Math.sin(lat), Math.cos(lat) * Math.sin(lon)).multiplyScalar(60);
+    scene.add(sunLight);
 
     // champ d'étoiles 3D (parallaxe quand on orbite)
     const NS = 2200, sp = new Float32Array(NS * 3), sc = new Float32Array(NS * 3);
@@ -590,8 +613,16 @@ export function createProjectScene(canvas, opts = {}) {
           if (o.isMesh) {
             const mats = Array.isArray(o.material) ? o.material : [o.material];
             mats.forEach((m) => {
-              m.metalness = 1; m.roughness = 0.32; m.envMapIntensity = 1.9;
-              if (m.color && m.color.r + m.color.g + m.color.b < 0.2) m.color.setHex(0x8a8f9c);
+              const isGlass = m.transparent || (m.opacity ?? 1) < 0.98 || (m.transmission ?? 0) > 0;
+              if (isGlass) {
+                // cockpit en verre : on préserve (verre bleuté transmissif)
+                m.transparent = true; m.opacity = Math.min(m.opacity ?? 1, 0.5);
+                m.metalness = 0; m.roughness = 0.05; m.envMapIntensity = 2.2;
+                if (m.transmission !== undefined) m.transmission = Math.max(m.transmission, 0.85);
+              } else {
+                m.metalness = 0.9; m.roughness = 0.48; m.envMapIntensity = 1.5; // métal brossé (pas miroir)
+                if (m.color && m.color.r + m.color.g + m.color.b < 0.25) m.color.setHex(0x7e8492);
+              }
               m.needsUpdate = true;
             });
           }

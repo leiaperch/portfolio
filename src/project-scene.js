@@ -526,6 +526,24 @@ export function createProjectScene(canvas, opts = {}) {
     cube.colorSpace = THREE.SRGBColorSpace;
     scene.background = cube;
     scene.environment = cube;
+
+    // champ d'étoiles (comble les zones noires de la nébuleuse)
+    const NS = 2600, sp = new Float32Array(NS * 3), sc = new Float32Array(NS * 3);
+    for (let i = 0; i < NS; i++) {
+      const u = Math.random(), v = Math.random();
+      const th = 2 * Math.PI * u, ph = Math.acos(2 * v - 1), r = 300 + Math.random() * 120;
+      sp[i * 3] = r * Math.sin(ph) * Math.cos(th);
+      sp[i * 3 + 1] = r * Math.cos(ph);
+      sp[i * 3 + 2] = r * Math.sin(ph) * Math.sin(th);
+      const t = Math.random(), c = t < 0.15 ? [0.7, 0.82, 1] : t < 0.3 ? [1, 0.9, 0.75] : [1, 1, 1];
+      sc[i * 3] = c[0]; sc[i * 3 + 1] = c[1]; sc[i * 3 + 2] = c[2];
+    }
+    const sg = new THREE.BufferGeometry();
+    sg.setAttribute('position', new THREE.BufferAttribute(sp, 3));
+    sg.setAttribute('color', new THREE.BufferAttribute(sc, 3));
+    scene.add(new THREE.Points(sg, new THREE.PointsMaterial({
+      size: 1.7, sizeAttenuation: false, vertexColors: true, transparent: true, opacity: 0.95, depthWrite: false,
+    })));
   }
 
   if (model && model.fleet?.length) {
@@ -543,6 +561,17 @@ export function createProjectScene(canvas, opts = {}) {
     model.fleet.forEach((url, i) => {
       loader.load(url, (g) => {
         const ship = g.scene;
+        // rendu métallique (reflète la nébuleuse)
+        ship.traverse((o) => {
+          if (o.isMesh) {
+            const mats = Array.isArray(o.material) ? o.material : [o.material];
+            mats.forEach((m) => {
+              m.metalness = 1; m.roughness = 0.32; m.envMapIntensity = 1.9;
+              if (m.color && m.color.r + m.color.g + m.color.b < 0.2) m.color.setHex(0x8a8f9c);
+              m.needsUpdate = true;
+            });
+          }
+        });
         const box = new THREE.Box3().setFromObject(ship);
         const c = box.getCenter(new THREE.Vector3());
         const s = 2.7 / (Math.max(...box.getSize(new THREE.Vector3()).toArray()) || 1);

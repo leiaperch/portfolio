@@ -16,10 +16,7 @@ export const projects = [
     tech: ['Unity 6', 'URP', 'C#', 'Blender', 'World Design'],
     year: '2026',
     mode: 'explore',
-    scene: [
-      'models/valmyr/survivants.glb?v=3',
-      'models/valmyr/buildings.glb?v=3',
-    ],
+    scene: ['models/valmyr/ruins.glb?v=1'],
     embed: null,
     status: {
       fr: 'Prototype jouable · Solo · En cours',
@@ -31,11 +28,11 @@ export const projects = [
     },
     about: {
       fr: [
-        "Valmyr est un royaume tombé sous la Flétrissure, une malédiction qui relève les morts. On y débarque dans les Marches de Cendre : une plaine brûlée traversée par un Pont Brisé et hantée par les goules. Refuge des vivants, le Camp des Survivants sert de premier hub — c'est la scène dans laquelle tu te balades ici.",
+        "Valmyr est un royaume tombé sous la Flétrissure, une malédiction qui relève les morts. On y débarque dans les Marches de Cendre : une plaine brûlée traversée par un Pont Brisé et hantée par les goules. Les ruines antiques qui la jalonnent — arches et colonnes brisées dans la brume — sont la scène que tu peux explorer ici.",
         "L'objectif est une vertical slice : une zone cohérente et jouable de bout en bout — exploration, combat, escalade, dialogues et quêtes — avant d'étendre le monde. Je porte le projet en solo, du game design au level design jusqu'à la direction artistique.",
       ],
       en: [
-        'Valmyr is a kingdom fallen to the Blight, a curse that raises the dead. You arrive in the Ash Marches: a scorched plain crossed by a Broken Bridge and haunted by ghouls. The Survivors’ Camp is the living’s refuge and the game’s first hub — the very scene you can wander through here.',
+        'Valmyr is a kingdom fallen to the Blight, a curse that raises the dead. You arrive in the Ash Marches: a scorched plain crossed by a Broken Bridge and haunted by ghouls. The ancient ruins scattered across it — broken arches and columns in the fog — are the scene you can explore here.',
         'The goal is a vertical slice: one coherent, end-to-end playable zone — exploration, combat, climbing, dialogue and quests — before expanding the world. I run the project solo, from game design and level design to art direction.',
       ],
     },

@@ -520,15 +520,39 @@ export function createProjectScene(canvas, opts = {}) {
     buildAura();
   }
 
-  // skybox cubemap (fond spatial) — réfléchie sur les modèles métalliques
-  if (model && model.skybox) {
-    const cube = new THREE.CubeTextureLoader().load(model.skybox);
-    cube.colorSpace = THREE.SRGBColorSpace;
-    scene.background = cube;
-    scene.environment = cube;
+  // fond spatial procédural (nébuleuse propre, sans coutures) + reflets
+  if (model && model.space) {
+    const cv = document.createElement('canvas'); cv.width = 2048; cv.height = 1024;
+    const x = cv.getContext('2d');
+    x.fillStyle = '#05060a'; x.fillRect(0, 0, 2048, 1024);
+    const blob = (cx, cy, col, r) => {
+      const g = x.createRadialGradient(cx, cy, 0, cx, cy, r);
+      g.addColorStop(0, col + 'c0'); g.addColorStop(0.4, col + '40'); g.addColorStop(1, col + '00');
+      x.fillStyle = g; x.beginPath(); x.arc(cx, cy, r, 0, 7); x.fill();
+    };
+    x.globalCompositeOperation = 'lighter';
+    const clouds = ['#7a5a2a', '#8a6a30', '#3a4a7a', '#2a5a5a', '#6a4a6a', '#7a5a2a', '#3a4a7a', '#5a4a2a', '#7a5a2a'];
+    clouds.forEach((col) => {
+      const cx = Math.random() * 2048, cy = 180 + Math.random() * 664, r = 150 + Math.random() * 140;
+      blob(cx, cy, col, r);
+      if (cx < r) blob(cx + 2048, cy, col, r);
+      if (cx > 2048 - r) blob(cx - 2048, cy, col, r); // raccord horizontal
+    });
+    x.globalCompositeOperation = 'source-over';
+    for (let i = 0; i < 1700; i++) {
+      const sx = Math.random() * 2048, sy = Math.random() * 1024, t = Math.random();
+      const b = t < 0.9 ? 190 + Math.random() * 55 : 255;
+      x.fillStyle = `rgba(${b},${b},${Math.min(255, b + 15)},${0.5 + Math.random() * 0.5})`;
+      const s = t < 0.96 ? 1 : 2; x.fillRect(sx, sy, s, s);
+    }
+    const spaceTex = new THREE.CanvasTexture(cv);
+    spaceTex.colorSpace = THREE.SRGBColorSpace;
+    spaceTex.mapping = THREE.EquirectangularReflectionMapping;
+    scene.background = spaceTex;
+    scene.environment = pmrem.fromEquirectangular(spaceTex).texture;
 
-    // champ d'étoiles (comble les zones noires de la nébuleuse)
-    const NS = 2600, sp = new Float32Array(NS * 3), sc = new Float32Array(NS * 3);
+    // champ d'étoiles 3D (parallaxe quand on orbite)
+    const NS = 2200, sp = new Float32Array(NS * 3), sc = new Float32Array(NS * 3);
     for (let i = 0; i < NS; i++) {
       const u = Math.random(), v = Math.random();
       const th = 2 * Math.PI * u, ph = Math.acos(2 * v - 1), r = 300 + Math.random() * 120;
@@ -582,20 +606,21 @@ export function createProjectScene(canvas, opts = {}) {
         pivot.position.copy(formation(i));
         pivot.rotation.y = -0.4; // léger 3/4
         fleet.add(pivot);
-        if (++done === n) {
-          const b = new THREE.Box3().setFromObject(fleet);
-          const size = b.getSize(new THREE.Vector3());
-          const ctr = b.getCenter(new THREE.Vector3());
-          fleet.position.sub(ctr); // recentre la flotte
-          const dist = Math.max(size.x, size.y, size.z) * 0.62 + 1.5;
-          camera.position.set(dist * 0.42, dist * 0.3, dist);
-          controls.target.set(0, 0, 0);
-          controls.minDistance = dist * 0.5;
-          controls.maxDistance = dist * 2.2;
-          controls.update();
-        }
-      }, undefined, (err) => { console.warn('ship load failed:', url, err); if (++done === n) {} });
+        if (++done === n) frameFleet();
+      }, undefined, (err) => { console.warn('ship load failed:', url, err); if (++done === n) frameFleet(); });
     });
+    function frameFleet() {
+      if (!fleet.children.length) return;
+      const b = new THREE.Box3().setFromObject(fleet);
+      const size = b.getSize(new THREE.Vector3());
+      fleet.position.sub(b.getCenter(new THREE.Vector3())); // recentre la flotte
+      const dist = Math.max(size.x, size.y, size.z) * 0.62 + 1.5;
+      camera.position.set(dist * 0.42, dist * 0.3, dist);
+      controls.target.set(0, 0, 0);
+      controls.minDistance = dist * 0.5;
+      controls.maxDistance = dist * 2.2;
+      controls.update();
+    }
   } else if (model && model.fbx) {
     // FBX + textures PBR (ORM) fournies
     const texL = new THREE.TextureLoader();

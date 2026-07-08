@@ -537,7 +537,7 @@ export function createProjectScene(canvas, opts = {}) {
     const n = model.fleet.length;
     const formation = (i) => {
       const col = i - (n - 1) / 2;
-      return new THREE.Vector3(col * 3.2, (i % 2 ? 0.7 : -0.7), -Math.abs(col) * 1.6 - (i % 2) * 1.1);
+      return new THREE.Vector3(col * 2.0, (i % 2 ? 0.5 : -0.5), -Math.abs(col) * 1.0 - (i % 2) * 0.7);
     };
     let done = 0;
     model.fleet.forEach((url, i) => {
@@ -545,7 +545,7 @@ export function createProjectScene(canvas, opts = {}) {
         const ship = g.scene;
         const box = new THREE.Box3().setFromObject(ship);
         const c = box.getCenter(new THREE.Vector3());
-        const s = 2.2 / (Math.max(...box.getSize(new THREE.Vector3()).toArray()) || 1);
+        const s = 2.7 / (Math.max(...box.getSize(new THREE.Vector3()).toArray()) || 1);
         ship.scale.setScalar(s);
         ship.position.set(-c.x * s, -c.y * s, -c.z * s); // centre le vaisseau sur son pivot
         const pivot = new THREE.Group();
@@ -558,8 +558,8 @@ export function createProjectScene(canvas, opts = {}) {
           const size = b.getSize(new THREE.Vector3());
           const ctr = b.getCenter(new THREE.Vector3());
           fleet.position.sub(ctr); // recentre la flotte
-          const dist = Math.max(size.x, size.y, size.z) * 1.25 + 3;
-          camera.position.set(dist * 0.45, dist * 0.32, dist);
+          const dist = Math.max(size.x, size.y, size.z) * 0.62 + 1.5;
+          camera.position.set(dist * 0.42, dist * 0.3, dist);
           controls.target.set(0, 0, 0);
           controls.minDistance = dist * 0.5;
           controls.maxDistance = dist * 2.2;

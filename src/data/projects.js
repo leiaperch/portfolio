@@ -101,7 +101,13 @@ export const projects = [
         'models/forlorn/skybox/py.webp', 'models/forlorn/skybox/ny.webp',
         'models/forlorn/skybox/pz.webp', 'models/forlorn/skybox/nz.webp',
       ],
-      // ship: à brancher quand Léïa exporte un vaisseau en FBX/glb
+      fleet: [
+        'models/forlorn/ships/corvette.glb',
+        'models/forlorn/ships/fregate.glb',
+        'models/forlorn/ships/croiseur.glb',
+        'models/forlorn/ships/destroyer.glb',
+        'models/forlorn/ships/pretorien.glb',
+      ],
     },
     embed: null,
     summary: {

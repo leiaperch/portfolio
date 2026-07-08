@@ -1,27 +1,54 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Léïa's portfolio</title>
-    <link rel="stylesheet" href="styles.css"> <!-- Lien vers le fichier CSS  -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> <!-- Inclusion de jQuery -->
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Léïa Percherancier — Creative Developer</title>
+  <meta name="description" content="Portfolio de Léïa Percherancier — passionnée de l'image, entre code et créativité : jeux, mondes 3D et expériences web." />
 </head>
 <body>
+  <canvas id="gl"></canvas>
+  <div class="noise-vig"></div>
+  <div class="grain"></div>
 
-    <!-- Navbar -->
-    <nav>
-        <ul class="menu">
-            <li><a href="galerie.html">Portfolio</a></li>
-            <li><a href="presentation.html">Presentation</a></li>
-        </ul>
-    </nav>
+  <div class="cur-dot"></div>
+  <div class="cur-ring"><span class="lbl" id="curlbl">VOIR</span></div>
 
-    <!-- Main Title -->
-    <div class="container">
-        <div class="title">LÉÏA PERCHERANCIER</div>
-        <div class="subtitle"> Welcome to my portfolio ! Here are all of my projects for the past few years </div>
-    </div>
-    <script src="scripts.js"></script> 
+  <div class="wrap">
+    <header class="top">
+      <a class="mono-logo" href="#top" data-cursor>LP°</a>
+      <nav class="r">
+        <span class="hidem">Creative Developer</span>
+        <a href="#travaux" data-cursor>Travaux</a>
+        <a href="#contact" data-cursor>Contact</a>
+      </nav>
+    </header>
+
+    <section class="hero" id="top">
+      <div class="role" id="role">Graphiste</div>
+      <h1 class="name">
+        <span class="ln l1"><i style="animation-delay:.15s">Léïa</i></span>
+        <span class="ln l2"><i style="animation-delay:.28s">Percher<b>ancier</b></i></span>
+      </h1>
+      <p class="sub">Jeune <b>passionnée de l'image</b>, je touche à tous les domaines mêlant <b>code et créativité</b> dans le but de donner vie à mes projets.</p>
+    </section>
+
+    <section class="index" id="travaux">
+      <div class="eyebrow">Travaux sélectionnés <span>— 3 royaumes</span></div>
+      <div id="works"></div>
+    </section>
+
+    <footer class="foot" id="contact">
+      <div>© 2026 — Léïa Percherancier</div>
+      <div>Design &amp; code — fait main, zéro template</div>
+      <div><a href="mailto:leiapercherancier@gmail.com" data-cursor>leiapercherancier@gmail.com</a></div>
+    </footer>
+  </div>
+
+  <div class="ticker" aria-hidden="true">
+    <div class="tick-track" id="tick"></div>
+  </div>
+
+  <script type="module" src="/src/main.js"></script>
 </body>
 </html>

@@ -528,7 +528,46 @@ export function createProjectScene(canvas, opts = {}) {
     scene.environment = cube;
   }
 
-  if (model && model.fbx) {
+  if (model && model.fleet?.length) {
+    // Flotte de vaisseaux glb disposés en formation dans la skybox
+    const draco = new DRACOLoader().setDecoderPath('/draco/');
+    const loader = new GLTFLoader().setDRACOLoader(draco);
+    const fleet = new THREE.Group();
+    group.add(fleet);
+    const n = model.fleet.length;
+    const formation = (i) => {
+      const col = i - (n - 1) / 2;
+      return new THREE.Vector3(col * 3.2, (i % 2 ? 0.7 : -0.7), -Math.abs(col) * 1.6 - (i % 2) * 1.1);
+    };
+    let done = 0;
+    model.fleet.forEach((url, i) => {
+      loader.load(url, (g) => {
+        const ship = g.scene;
+        const box = new THREE.Box3().setFromObject(ship);
+        const c = box.getCenter(new THREE.Vector3());
+        const s = 2.2 / (Math.max(...box.getSize(new THREE.Vector3()).toArray()) || 1);
+        ship.scale.setScalar(s);
+        ship.position.set(-c.x * s, -c.y * s, -c.z * s); // centre le vaisseau sur son pivot
+        const pivot = new THREE.Group();
+        pivot.add(ship);
+        pivot.position.copy(formation(i));
+        pivot.rotation.y = -0.4; // léger 3/4
+        fleet.add(pivot);
+        if (++done === n) {
+          const b = new THREE.Box3().setFromObject(fleet);
+          const size = b.getSize(new THREE.Vector3());
+          const ctr = b.getCenter(new THREE.Vector3());
+          fleet.position.sub(ctr); // recentre la flotte
+          const dist = Math.max(size.x, size.y, size.z) * 1.25 + 3;
+          camera.position.set(dist * 0.45, dist * 0.32, dist);
+          controls.target.set(0, 0, 0);
+          controls.minDistance = dist * 0.5;
+          controls.maxDistance = dist * 2.2;
+          controls.update();
+        }
+      }, undefined, (err) => { console.warn('ship load failed:', url, err); if (++done === n) {} });
+    });
+  } else if (model && model.fbx) {
     // FBX + textures PBR (ORM) fournies
     const texL = new THREE.TextureLoader();
     const base = texL.load(model.base); base.colorSpace = THREE.SRGBColorSpace;

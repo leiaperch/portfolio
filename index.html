@@ -18,9 +18,12 @@
     <header class="top">
       <a class="mono-logo" href="#top" data-cursor>LP°</a>
       <nav class="r">
-        <span class="hidem">Creative Developer</span>
-        <a href="#travaux" data-cursor>Travaux</a>
-        <a href="#contact" data-cursor>Contact</a>
+        <button class="lang" id="lang-toggle" aria-label="Changer de langue">
+          <span data-l="fr">FR</span><span class="sep">/</span><span data-l="en">EN</span>
+        </button>
+        <span class="hidem" id="nav-role">Creative Developer</span>
+        <a href="#travaux" id="nav-works" data-cursor>Travaux</a>
+        <a href="#contact" id="nav-contact" data-cursor>Contact</a>
       </nav>
     </header>
 
@@ -30,17 +33,16 @@
         <span class="ln l1"><i style="animation-delay:.15s">Léïa</i></span>
         <span class="ln l2"><i style="animation-delay:.28s">Percher<b>ancier</b></i></span>
       </h1>
-      <p class="sub">Jeune <b>passionnée de l'image</b>, je touche à tous les domaines mêlant <b>code et créativité</b> dans le but de donner vie à mes projets.</p>
+      <p class="sub" id="tagline"></p>
     </section>
 
     <section class="index" id="travaux">
-      <div class="eyebrow">Travaux sélectionnés <span>— 3 royaumes</span></div>
+      <div class="eyebrow"><span id="works-eyebrow">Travaux sélectionnés</span> <span id="works-eyebrow-sub">— 3 royaumes</span></div>
       <div id="works"></div>
     </section>
 
     <footer class="foot" id="contact">
-      <div>© 2026 — Léïa Percherancier</div>
-      <div>Design &amp; code — fait main, zéro template</div>
+      <div id="footer-copy">© 2026 — Léïa Percherancier</div>
       <div><a href="mailto:leiapercherancier@gmail.com" data-cursor>leiapercherancier@gmail.com</a></div>
     </footer>
   </div>

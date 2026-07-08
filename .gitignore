@@ -4,6 +4,7 @@ dist
 .vite
 *.local
 .DS_Store
+.claude
 
 # Java (legacy)
 *.class

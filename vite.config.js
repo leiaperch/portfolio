@@ -4,6 +4,8 @@ export default defineConfig({
   // Relative base so the build works on any static host
   // (Vercel, Netlify, GitHub Pages…) without extra config.
   base: './',
+  // Une seule instance de Three.js (évite le warning "Multiple instances")
+  resolve: { dedupe: ['three'] },
   server: {
     port: 5173,
     open: false,

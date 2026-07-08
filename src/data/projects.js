@@ -16,7 +16,11 @@ export const projects = [
     tech: ['Unity 6', 'URP', 'C#', 'Blender', 'World Design'],
     year: '2026',
     mode: 'explore',
-    scene: null,
+    scene: [
+      'models/valmyr/survivants.glb?v=2',
+      'models/valmyr/buildings.glb?v=2',
+      'models/valmyr/details.glb?v=2',
+    ],
     embed: null,
     status: {
       fr: 'Prototype jouable · Solo · En cours',

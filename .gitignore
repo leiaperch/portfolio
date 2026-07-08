@@ -19,3 +19,6 @@ dist
 *.rar
 hs_err_pid*
 replay_pid*
+
+# gros exports 3D bruts (ne pas committer)
+public/models/valmyr/camp-*.glb

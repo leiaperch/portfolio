@@ -10,6 +10,7 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { PointerLockControls } from 'three/addons/controls/PointerLockControls.js';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 
 export function createProjectScene(canvas, opts = {}) {
@@ -273,9 +274,40 @@ export function createProjectScene(canvas, opts = {}) {
     }
 
     let embers = null;
+    let clampR = 16;
+    const minR = model ? 0 : 1.3;
+
     if (model) {
-      new GLTFLoader().load(model, (g) => { scene.add(g.scene); }, undefined,
-        (err) => { console.warn('glTF load failed, camp placeholder:', err); embers = buildCamp(); });
+      // Vraie scène exportée depuis Unity (glTF Draco + textures webp)
+      const draco = new DRACOLoader().setDecoderPath('/draco/');
+      const loader = new GLTFLoader().setDRACOLoader(draco);
+      const paths = Array.isArray(model) ? model : [model];
+      const root = new THREE.Group();
+      scene.add(root);
+
+      // sol de substitution (le terrain Unity n'est pas exporté) + lueur du feu
+      const ground = new THREE.Mesh(
+        new THREE.CircleGeometry(150, 64),
+        new THREE.MeshStandardMaterial({ color: 0x2a2620, roughness: 1 }));
+      ground.rotation.x = -Math.PI / 2; ground.position.y = -0.02; scene.add(ground);
+      fireLight = new THREE.PointLight(0xff7a2e, 26, 45, 2);
+      fireLight.position.set(0, 1.4, 0); scene.add(fireLight);
+
+      let done = 0;
+      const finalize = () => {
+        const box = new THREE.Box3().setFromObject(root);
+        if (!box.isEmpty()) {
+          const c = box.getCenter(new THREE.Vector3());
+          root.position.x -= c.x; root.position.z -= c.z; root.position.y -= box.min.y;
+          const size = box.getSize(new THREE.Vector3());
+          clampR = Math.max(size.x, size.z) * 0.5 + 3;
+          camera.position.set(0, 1.6, Math.min(clampR * 0.42, 14));
+        }
+      };
+      paths.forEach((p) => {
+        loader.load(p, (g) => { root.add(g.scene); if (++done === paths.length) finalize(); },
+          undefined, (err) => { console.warn('glb load failed:', p, err); if (++done === paths.length) finalize(); });
+      });
     } else {
       embers = buildCamp();
     }
@@ -365,8 +397,8 @@ export function createProjectScene(canvas, opts = {}) {
         controls.moveForward(-vel.z * dt);
         const p = camera.position;
         const rr = Math.hypot(p.x, p.z);
-        if (rr > 16) { p.x *= 16 / rr; p.z *= 16 / rr; } // reste dans le camp
-        if (rr < 1.3) { p.x *= 1.3 / rr; p.z *= 1.3 / rr; } // ne traverse pas le feu
+        if (rr > clampR) { p.x *= clampR / rr; p.z *= clampR / rr; } // reste dans le camp
+        if (minR && rr < minR) { p.x *= minR / rr; p.z *= minR / rr; } // ne traverse pas le feu
         p.y = 1.6;
       } else if (!reducedMotion) {
         // panoramique lent tant qu'on n'est pas entré

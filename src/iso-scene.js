@@ -1,11 +1,12 @@
 // Scène isométrique jouable pour « Fill Your Pockets » (canvas 2D).
-// Reconstitue une petite arène désert avec les vrais sprites du jeu :
-// héros animé qu'on déplace (ZQSD/WASD/flèches), Grog, coffre, tuiles cubes.
+// Petite prairie verte (herbe, chemin, rivière/pont, mare, arbres) avec les
+// vrais sprites du jeu : héros animé qu'on déplace (ZQSD/WASD/flèches), Grog, coffre.
 
 const BASE = 'games/fyp/';
 
 const SHEET = {
-  tile: 'tile.webp', tile_deco: 'tile_deco.webp', tile_steps: 'tile_steps.webp', tile_crumbled: 'tile_crumbled.webp',
+  grass: 'grass.webp', path: 'path.webp', river: 'river.webp', bridge: 'bridge.webp', water: 'water.webp',
+  tree: 'tree.webp', rock: 'rock.webp',
   idle_front: 'idle_front.webp', idle_side: 'idle_side.webp',
   coffre: 'coffre.webp', grog: 'grog.webp',
   wf: ['wf1.webp', 'wf2.webp', 'wf3.webp', 'wf4.webp'],
@@ -27,39 +28,39 @@ export function createIsoScene(canvas, { reducedMotion } = {}) {
   let raf = 0, W = 0, H = 0, dpr = 1;
   const cleanups = [];
 
-  // ---- carte : arène GRID×GRID, quelques tuiles décorées + accès ----
+  // ---- carte authorée : prairie verte, rivière + pont, chemin, mare ----
   const GRID = 7;
-  // plateau varié mais stable (RNG déterministe pondéré)
-  let seed = 20230526;
-  const rnd = () => { seed = (seed * 1103515245 + 12345) & 0x7fffffff; return seed / 0x7fffffff; };
-  const pick = (weights) => {
-    let x = rnd(), acc = 0;
-    for (const [k, w] of weights) { acc += w; if (x <= acc) return k; }
-    return weights[0][0];
+  const G = 'grass', P = 'path', R = 'river', B = 'bridge', A = 'water';
+  const map = [
+    [G, G, G, G, G, G, G],
+    [R, R, R, B, R, R, R], // rivière traversée par un pont
+    [G, G, G, P, G, G, G], // chemin qui descend vers l'avant
+    [G, G, G, P, G, G, G],
+    [G, G, G, P, G, G, G],
+    [A, A, G, P, G, G, G], // mare
+    [A, A, G, P, G, G, G],
+  ];
+  const deco = [
+    { c: 5, r: 3, name: 'tree' }, { c: 1, r: 2, name: 'tree' }, { c: 1, r: 4, name: 'tree' },
+    { c: 5, r: 5, name: 'rock' }, { c: 4, r: 2, name: 'rock' },
+  ];
+  const blocked = new Set(['river', 'water']); // le héros ne marche pas sur l'eau
+  const walkable = (c, r) => {
+    const ri = Math.round(r), ci = Math.round(c);
+    if (ri < 0 || ci < 0 || ri >= GRID || ci >= GRID) return false;
+    return !blocked.has(map[ri][ci]);
   };
-  const map = [];
-  for (let r = 0; r < GRID; r++) {
-    const row = [];
-    for (let c = 0; c < GRID; c++) {
-      const edge = r === 0 || c === 0 || r === GRID - 1 || c === GRID - 1;
-      row.push(edge
-        ? pick([['tile_crumbled', 0.55], ['tile', 0.3], ['tile_steps', 0.15]])
-        : pick([['tile', 0.5], ['tile_deco', 0.24], ['tile_steps', 0.14], ['tile_crumbled', 0.12]]));
-    }
-    map.push(row);
-  }
 
   // ---- entités ----
-  const hero = { c: 3, r: 3, face: 'front', moving: false, anim: 0, bob: 0 };
-  const grog = { c: 1.5, r: 5, t: 0, baseC: 1.5, baseR: 5, flip: false };
-  const chest = { c: 5, r: 1.5 };
+  const hero = { c: 3, r: 4, face: 'front', moving: false, anim: 0, bob: 0 };
+  const grog = { c: 5, r: 4, t: 0, baseC: 5, baseR: 4, flip: false };
+  const chest = { c: 5, r: 2 };
 
   const imgs = {};
   let ready = false;
 
   // ---- projection iso ----
   let TW = 92;                // largeur d'une tuile (px CSS), recalculée au resize
-  const topRatio = 0.5;       // hauteur du losange = TW * topRatio/... (calibré ci-dessous)
   let originX = 0, originY = 0;
 
   function iso(c, r) {
@@ -139,8 +140,13 @@ export function createIsoScene(canvas, { reducedMotion } = {}) {
       if (hero.moving) {
         const len = Math.hypot(dc, dr) || 1;
         const spd = 2.6 * dt;
-        hero.c = Math.max(0.4, Math.min(GRID - 1.4, hero.c + (dc / len) * spd));
-        hero.r = Math.max(0.4, Math.min(GRID - 1.4, hero.r + (dr / len) * spd));
+        const nc = hero.c + (dc / len) * spd, nr = hero.r + (dr / len) * spd;
+        // collision : bloque l'eau/rivière, glisse le long des berges
+        if (walkable(nc, nr)) { hero.c = nc; hero.r = nr; }
+        else if (walkable(nc, hero.r)) hero.c = nc;
+        else if (walkable(hero.c, nr)) hero.r = nr;
+        hero.c = Math.max(0.4, Math.min(GRID - 1.4, hero.c));
+        hero.r = Math.max(0.4, Math.min(GRID - 1.4, hero.r));
         // orientation depuis le mouvement écran dominant
         const sx = dc - dr, sy = dc + dr; // dérivée écran
         if (Math.abs(sx) > Math.abs(sy)) hero.face = sx > 0 ? 'right' : 'left';
@@ -162,28 +168,30 @@ export function createIsoScene(canvas, { reducedMotion } = {}) {
       ctx.clearRect(0, 0, W, H);
 
       // sol (arrière → avant)
-      const sTile = TW / (imgs.tile.width);
+      const sTile = TW / (imgs.grass.width);
       for (let s = 0; s <= 2 * (GRID - 1); s++) {
         for (let r = 0; r < GRID; r++) {
           const c = s - r; if (c < 0 || c >= GRID) continue;
           const p = iso(c, r);
-          const img = imgs[map[r][c]] || imgs.tile;
+          const img = imgs[map[r][c]] || imgs.grass;
           const w = img.width * sTile, h = img.height * sTile;
           ctx.drawImage(img, p.x - w / 2, p.y - TW / 4, w, h);
         }
       }
 
-      // entités triées par profondeur (c+r), puis y
+      // entités (arbres/rochers + perso) triées par profondeur (c+r)
       const ents = [];
+      for (const d of deco) ents.push({ c: d.c, r: d.r, kind: 'deco', name: d.name });
       ents.push({ c: chest.c, r: chest.r, kind: 'chest' });
       ents.push({ c: grog.c, r: grog.r, kind: 'grog' });
       ents.push({ c: hero.c, r: hero.r, kind: 'hero' });
       ents.sort((a, b) => (a.c + a.r) - (b.c + b.r));
-      const charScale = (TW / imgs.tile.width) * 0.92;
+      const charScale = sTile * 0.92;
       for (const e of ents) {
         const p = iso(e.c, e.r);
         const footY = p.y + TW / 8;
-        if (e.kind === 'chest') drawSprite(imgs.coffre, p.x, footY, charScale * 0.8, false);
+        if (e.kind === 'deco') drawSprite(imgs[e.name], p.x, footY, sTile, false);
+        else if (e.kind === 'chest') drawSprite(imgs.coffre, p.x, footY, charScale * 0.8, false);
         else if (e.kind === 'grog') drawSprite(imgs.grog, p.x, footY + Math.sin(grog.t * 3) * 1.5, charScale * 0.9, grog.flip);
         else {
           const { img, flip } = facingSprite();
@@ -197,7 +205,7 @@ export function createIsoScene(canvas, { reducedMotion } = {}) {
 
   // charge les assets puis démarre
   (async () => {
-    const flat = ['tile', 'tile_deco', 'tile_steps', 'tile_crumbled', 'idle_front', 'idle_side', 'coffre', 'grog'];
+    const flat = ['grass', 'path', 'river', 'bridge', 'water', 'tree', 'rock', 'idle_front', 'idle_side', 'coffre', 'grog'];
     await Promise.all([
       ...flat.map(async (k) => { imgs[k] = await loadImg(SHEET[k]); }),
       (async () => { imgs.wf = await Promise.all(SHEET.wf.map(loadImg)); })(),

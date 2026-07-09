@@ -224,11 +224,11 @@ export const projects = [
     about: {
       fr: [
         'Fill Your Pockets est un rogue-like isométrique 2.5D à la Dofus : deux niveaux, un héros qui explore, ramasse l’or, affronte des Grogs et déjoue des pièges avant la sortie. J’y ai porté la direction artistique — héros, ennemis, coffres et tuiles désert, tout est dessiné main.',
-        'La scène ci-dessus rejoue l’arène avec mes vrais sprites : déplace le héros (ZQSD / flèches) sur les tuiles cubes, autour du Grog et du coffre. Côté équipe, développé sous Unity (URP 2D, C#) pendant le stage.',
+        'La scène ci-dessus rejoue une prairie avec mes vrais sprites : déplace le héros (ZQSD / flèches) sur l’herbe, le chemin et le pont, le long de la rivière et de la mare, autour du Grog, des arbres et du coffre. Côté équipe, développé sous Unity (URP 2D, C#) pendant le stage.',
       ],
       en: [
         'Fill Your Pockets is an isometric 2.5D roguelike à la Dofus: two levels, a hero who explores, grabs gold, fights Grogs and dodges traps before the exit. I led the art direction — hero, enemies, chests and desert tiles, all hand-drawn.',
-        'The scene above replays the arena with my real sprites: move the hero (WASD / arrows) across the cube tiles, around the Grog and the chest. As a team, built in Unity (2D URP, C#) during the internship.',
+        'The scene above replays a meadow with my real sprites: move the hero (WASD / arrows) across grass, the path and the bridge, along the river and pond, around the Grog, trees and chest. As a team, built in Unity (2D URP, C#) during the internship.',
       ],
     },
     cover: null,

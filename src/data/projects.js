@@ -165,11 +165,11 @@ export const projects = [
   },
   {
     id: 'setubal-vr',
-    title: 'Parque do Bonfim — VR',
+    title: 'Galerie Setúbal',
     realm: 'I',
     type: { fr: 'Expérience VR · Scène 3D', en: 'VR experience · 3D scene' },
-    tech: ['Unity XR', 'Blender', 'Photogrammétrie'],
-    year: '2025',
+    tech: ['Unity XR', 'Adobe Aero', 'Blender', 'Photogrammétrie'],
+    year: '2023',
     mode: 'explore',
     scene: {
       gallery: true,
@@ -189,11 +189,11 @@ export const projects = [
     },
     about: {
       fr: [
-        'Pendant mon stage à Setúbal, j’ai scanné un lieu réel — le Parque do Bonfim — en photogrammétrie (Scaniverse), nettoyé le maillage sous Blender, puis monté une expérience en réalité virtuelle sous Unity XR (mains, interactions).',
+        'Pendant mon stage à Setúbal, j’ai scanné un lieu réel — le Parque do Bonfim — en photogrammétrie (Scaniverse), nettoyé le maillage sous Blender, puis monté une expérience immersive sous Unity XR et Adobe Aero (réalité augmentée / virtuelle, interactions).',
         'La galerie ci-dessus rejoue l’exposition en 3D : on s’y balade librement (ZQSD + souris) parmi mes pièces — le scan du parc et les éléments modélisés (personnage, vélo, oiseaux, un choco frito…).',
       ],
       en: [
-        'During my internship in Setúbal, I photogrammetry-scanned a real place — Parque do Bonfim — with Scaniverse, cleaned the mesh in Blender, then built a virtual-reality experience in Unity XR (hands, interactions).',
+        'During my internship in Setúbal, I photogrammetry-scanned a real place — Parque do Bonfim — with Scaniverse, cleaned the mesh in Blender, then built an immersive experience in Unity XR and Adobe Aero (augmented / virtual reality, interactions).',
         'The gallery above replays the exhibition in 3D: walk freely (WASD + mouse) among my pieces — the park scan and the modelled elements (a character, a bicycle, birds, a choco frito…).',
       ],
     },

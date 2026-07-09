@@ -19,10 +19,19 @@ export function renderProject(id, { onCursorRefresh } = {}) {
   const num = String(idx + 1).padStart(2, '0');
   const next = projects[(idx + 1) % projects.length];
   const isExplore = p.mode === 'explore';
+  const is3D = p.mode === 'orbit' || p.mode === 'explore';
+  const isEmbed = p.mode === 'embed';
 
   const overlay = isExplore
     ? `<div class="pv-scene-hint"><span class="pv-scene-verb"></span><span class="pv-scene-keys"></span></div>`
-    : `<div class="pv-hint"></div>`;
+    : is3D
+      ? `<div class="pv-hint"></div>`
+      : isEmbed
+        ? `<div class="pv-embed-cta">
+             <button class="pv-play" data-embed="${p.embed}" data-cursor="JOUER"><span class="pv-play-lbl"></span></button>
+             <a class="pv-fs" href="${p.embed}" target="_blank" rel="noopener" data-cursor>↗ ${tv({ fr: 'nouvel onglet', en: 'new tab' })}</a>
+           </div>`
+        : (p.play ? `<a class="pv-play" href="${p.play}" target="_blank" rel="noopener" data-cursor="JOUER"><span class="pv-play-lbl"></span></a>` : '');
 
   const view = document.createElement('div');
   view.className = 'project-view';
@@ -37,8 +46,8 @@ export function renderProject(id, { onCursorRefresh } = {}) {
       </div>
     </header>
 
-    <section class="pv-hero ${isExplore ? 'is-explore' : ''}">
-      <canvas class="pv-canvas"></canvas>
+    <section class="pv-hero ${isExplore ? 'is-explore' : ''} ${is3D ? '' : 'is-cover'}">
+      ${is3D ? '<canvas class="pv-canvas"></canvas>' : `<div class="pv-hero-cover"><img src="${p.cover}" alt="${p.title}" /></div>`}
       <div class="pv-hero-txt">
         <div class="pv-num">${num} / ${String(projects.length).padStart(2, '0')}</div>
         <h1 class="pv-title">${p.title}</h1>
@@ -108,9 +117,10 @@ export function renderProject(id, { onCursorRefresh } = {}) {
     if (isExplore) {
       q('.pv-scene-verb').textContent = t('pv_explore_verb');
       q('.pv-scene-keys').textContent = t('pv_explore_keys');
-    } else {
+    } else if (is3D) {
       q('.pv-hint').textContent = t('pv_orbit_hint');
     }
+    const playLbl = q('.pv-play-lbl'); if (playLbl) playLbl.textContent = '▶ ' + t('pv_play');
     onCursorRefresh?.();
   }
 
@@ -136,26 +146,42 @@ export function renderProject(id, { onCursorRefresh } = {}) {
   });
 
   let exploring = false;
-  const scene = createProjectScene(view.querySelector('.pv-canvas'), {
-    mode: p.mode,
-    model: p.scene,
-    reducedMotion,
-    onLockChange: (locked) => {
-      exploring = locked;
-      view.classList.toggle('exploring', locked);
-    },
-  });
-
-  if (isExplore) {
-    view.querySelector('.pv-canvas')?.addEventListener('click', () => {
-      if (!exploring) scene.lock?.();
+  let scene = null;
+  if (is3D) {
+    scene = createProjectScene(view.querySelector('.pv-canvas'), {
+      mode: p.mode,
+      model: p.scene,
+      reducedMotion,
+      onLockChange: (locked) => {
+        exploring = locked;
+        view.classList.toggle('exploring', locked);
+      },
     });
+    if (isExplore) {
+      view.querySelector('.pv-canvas')?.addEventListener('click', () => {
+        if (!exploring) scene.lock?.();
+      });
+    }
   }
+
+  // jeu web déployé : clic « Jouer » → charge l'iframe jouable en place
+  view.querySelector('.pv-play[data-embed]')?.addEventListener('click', (e) => {
+    const url = e.currentTarget.dataset.embed;
+    const cover = view.querySelector('.pv-hero-cover');
+    if (!cover) return;
+    const frame = document.createElement('iframe');
+    frame.className = 'pv-embed-frame';
+    frame.src = url;
+    frame.setAttribute('allow', 'fullscreen; autoplay');
+    frame.title = p.title;
+    cover.replaceWith(frame);
+    view.classList.add('playing');
+  });
 
   return {
     dispose() {
       offLang();
-      scene.dispose();
+      scene?.dispose();
       view.remove();
     },
   };

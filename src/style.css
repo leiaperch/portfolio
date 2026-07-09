@@ -154,6 +154,26 @@ body.view-project{overflow:hidden}
 .project-view.exploring .pv-scene-hint{opacity:0}
 .project-view.exploring .pv-hero-txt{opacity:0;transition:opacity .3s}
 
+/* hero image (projets 2D) + jeu web embarqué */
+.pv-hero-cover, .pv-embed-frame{position:absolute;inset:0;width:100%;height:100%}
+.pv-hero-cover img{width:100%;height:100%;object-fit:cover;display:block}
+.pv-hero.is-cover::after{content:"";position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(120% 100% at 50% 30%,transparent 42%,rgba(3,3,7,.62))}
+.pv-embed-cta{position:absolute;inset:0;z-index:4;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:16px}
+.pv-play{font-family:var(--mono);font-size:14px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink);
+  padding:16px 34px;border:1px solid var(--coral);border-radius:3px;background:rgba(255,93,115,.08);cursor:pointer;
+  transition:background .3s,box-shadow .3s;pointer-events:auto;text-decoration:none;display:inline-flex;align-items:center;gap:8px}
+.pv-play:hover{background:rgba(255,93,115,.18);box-shadow:0 0 30px rgba(255,93,115,.3)}
+.pv-fs{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);
+  text-decoration:none;pointer-events:auto}
+.pv-fs:hover{color:var(--ink)}
+.pv-embed-frame{border:0;background:#000}
+.project-view.playing .pv-embed-cta,
+.project-view.playing .pv-hero.is-cover::after{display:none}
+.project-view.playing .pv-hero-txt{opacity:0;transition:opacity .3s}
+.project-view.playing .pv-hero{height:100vh}
+
 .pv-body{max-width:860px;margin:0 auto;padding:70px 30px 40px}
 .pv-summary{font-size:clamp(18px,2.4vw,26px);line-height:1.55;color:#d3d8e6;font-weight:300;text-wrap:balance}
 .pv-status{margin-top:20px;font-family:var(--mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--dim)}

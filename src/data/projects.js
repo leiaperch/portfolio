@@ -125,17 +125,17 @@ export const projects = [
     embed: 'https://leiaperch.github.io/THE_CLUB/',
     status: { fr: 'Jouable en ligne', en: 'Playable online' },
     summary: {
-      fr: 'Visual novel cyberpunk jouable directement dans le navigateur, propulsé par inkjs — narration à embranchements, personnages et ambiance néon. Déployé sur GitHub Pages.',
-      en: 'A cyberpunk visual novel playable right in the browser, powered by inkjs — branching narrative, characters and neon mood. Deployed on GitHub Pages.',
+      fr: 'Visual novel cyberpunk jouable directement dans le navigateur, propulsé par inkjs, The Club propose une expérence dans le monde de Hexapolis, une cité autoritaire et futuriste intimement liée à la sombre histoire du heros. ',
+      en: 'A cyberpunk visual novel playable right in the browser, powered by inkjs, The Club propose an experience in Hexapolis, an authoriatarian futuristic city linked to the dark past of our hero',
     },
     about: {
       fr: [
         'The Club est un visual novel cyberpunk : membre d’un club clandestin, on dialogue et on choisit — chaque décision infléchit l’histoire et les relations.',
-        'Version web codée en JavaScript avec le moteur narratif inkjs (script Ink compilé en JSON), déployée automatiquement sur GitHub Pages. Écriture, personnages et direction artistique néon.',
+        'Version web codée en JavaScript avec le moteur narratif inkjs (script Ink compilé en JSON), déployée automatiquement sur GitHub Pages. Écriture, personnages et DA réalisés par moi-même.',
       ],
       en: [
         'The Club is a cyberpunk visual novel: as a member of an underground club, you talk and choose — every decision bends the story and its relationships.',
-        'A web version coded in JavaScript with the inkjs narrative engine (Ink script compiled to JSON), auto-deployed to GitHub Pages. Writing, characters and neon art direction.',
+        'A web version coded in JavaScript with the inkjs narrative engine (Ink script compiled to JSON), auto-deployed to GitHub Pages. Writing, characters and art direction by me.',
       ],
     },
     cover: 'images/the-club/main-thread.jpg',
@@ -164,20 +164,40 @@ export const projects = [
     gallery: [],
   },
   {
-    id: 'pixel-war',
-    title: 'Pixel War',
-    realm: 'II',
-    type: { fr: 'Web temps réel', en: 'Real-time web' },
-    tech: ['JavaScript', 'Canvas', 'API REST'],
-    year: '2024',
-    mode: 'orbit',
-    scene: null,
-    embed: null,
-    summary: {
-      fr: 'Reproduction du « Pixel War » de Reddit : interface HTML/CSS sans framework consommant une API documentée en JavaScript.',
-      en: "A remake of Reddit's Pixel War: a framework-free HTML/CSS interface consuming a documented API in JavaScript.",
+    id: 'setubal-vr',
+    title: 'Parque do Bonfim — VR',
+    realm: 'I',
+    type: { fr: 'Expérience VR · Scène 3D', en: 'VR experience · 3D scene' },
+    tech: ['Unity XR', 'Blender', 'Photogrammétrie'],
+    year: '2025',
+    mode: 'explore',
+    scene: {
+      gallery: true,
+      statues: [
+        'models/internship/man.glb',
+        'models/internship/bicycle.glb',
+        'models/internship/birds.glb',
+        'models/internship/choco.glb',
+        'models/internship/parque.glb',
+      ],
     },
-    cover: 'images/main_image_pixel.PNG',
-    gallery: ['images/main_image_pixel.PNG'],
+    embed: null,
+    status: { fr: 'Stage · Setúbal (Portugal)', en: 'Internship · Setúbal (Portugal)' },
+    summary: {
+      fr: 'Scène 3D en réalité virtuelle réalisée en stage à Setúbal (Portugal) : un scan photogrammétrique du Parque do Bonfim, transformé en environnement VR sous Unity XR.',
+      en: 'A virtual-reality 3D scene made during my internship in Setúbal (Portugal): a photogrammetry scan of Parque do Bonfim turned into a VR environment in Unity XR.',
+    },
+    about: {
+      fr: [
+        'Pendant mon stage à Setúbal, j’ai scanné un lieu réel — le Parque do Bonfim — en photogrammétrie (Scaniverse), nettoyé le maillage sous Blender, puis monté une expérience en réalité virtuelle sous Unity XR (mains, interactions).',
+        'La galerie ci-dessus rejoue l’exposition en 3D : on s’y balade librement (ZQSD + souris) parmi mes pièces — le scan du parc et les éléments modélisés (personnage, vélo, oiseaux, un choco frito…).',
+      ],
+      en: [
+        'During my internship in Setúbal, I photogrammetry-scanned a real place — Parque do Bonfim — with Scaniverse, cleaned the mesh in Blender, then built a virtual-reality experience in Unity XR (hands, interactions).',
+        'The gallery above replays the exhibition in 3D: walk freely (WASD + mouse) among my pieces — the park scan and the modelled elements (a character, a bicycle, birds, a choco frito…).',
+      ],
+    },
+    cover: null,
+    gallery: [],
   },
 ];

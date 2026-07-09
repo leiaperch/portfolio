@@ -58,7 +58,8 @@ export function createProjectScene(canvas, opts = {}) {
     scene.fog = new THREE.FogExp2(0x5f5952, 0.028);
     camera.position.set(0, 1.6, 10);
 
-    scene.add(new THREE.HemisphereLight(0x8a8478, 0x241f18, 0.65));
+    const hemi = new THREE.HemisphereLight(0x8a8478, 0x241f18, 0.65);
+    scene.add(hemi);
     const sun = new THREE.DirectionalLight(0xb9b0a0, 0.9);
     sun.position.set(-6, 10, 4);
     scene.add(sun);
@@ -280,8 +281,65 @@ export function createProjectScene(canvas, opts = {}) {
     let groundEye = 1.6;
     let orbitR = 14, orbitH = 9, lookY = 2;
     const minR = model ? 0 : 1.3;
+    let bounds = null;
 
-    if (model) {
+    // Galerie VR : salle sombre où l'on se balade, statues sur socles + spots
+    function buildGallery(statues) {
+      scene.fog = new THREE.FogExp2(0x08080c, 0.02);
+      hemi.intensity = 0.22; hemi.color.setHex(0x4a4a5a); hemi.groundColor.setHex(0x08080c);
+      sun.intensity = 0.15;
+
+      const N = Math.max(statues.length, 1), spacing = 4.6;
+      const halfLen = (N * spacing) / 2 + 3, W = 9, wallH = 4.2;
+      const mFloor = new THREE.MeshStandardMaterial({ color: 0x14141b, roughness: 0.5, metalness: 0.3 });
+      const mWall = new THREE.MeshStandardMaterial({ color: 0x1a1a22, roughness: 0.95 });
+      const mCeil = new THREE.MeshStandardMaterial({ color: 0x0d0d12, roughness: 1 });
+      const mPed = new THREE.MeshStandardMaterial({ color: 0x2a2a33, roughness: 0.6, metalness: 0.1 });
+
+      const floor = new THREE.Mesh(new THREE.PlaneGeometry(W, halfLen * 2), mFloor);
+      floor.rotation.x = -Math.PI / 2; scene.add(floor);
+      const ceil = new THREE.Mesh(new THREE.PlaneGeometry(W, halfLen * 2), mCeil);
+      ceil.rotation.x = Math.PI / 2; ceil.position.y = wallH; scene.add(ceil);
+      [-W / 2, W / 2].forEach((wx) => {
+        const wall = new THREE.Mesh(new THREE.PlaneGeometry(halfLen * 2, wallH), mWall);
+        wall.rotation.y = wx < 0 ? Math.PI / 2 : -Math.PI / 2;
+        wall.position.set(wx, wallH / 2, 0); scene.add(wall);
+      });
+      [-halfLen, halfLen].forEach((wz) => {
+        const wall = new THREE.Mesh(new THREE.PlaneGeometry(W, wallH), mWall);
+        wall.position.set(0, wallH / 2, wz); wall.rotation.y = wz < 0 ? 0 : Math.PI; scene.add(wall);
+      });
+      scene.add(new THREE.AmbientLight(0x30303c, 0.6));
+
+      const draco = new DRACOLoader().setDecoderPath('/draco/');
+      const loader = new GLTFLoader().setDRACOLoader(draco);
+      statues.forEach((url, i) => {
+        const px = (i % 2 ? 1 : -1) * 2.6, pz = -halfLen + 3.5 + i * spacing;
+        const ped = new THREE.Mesh(new THREE.CylinderGeometry(0.55, 0.62, 1, 24), mPed);
+        ped.position.set(px, 0.5, pz); scene.add(ped);
+        const spot = new THREE.SpotLight(0xfff0d6, 70, 9, 0.6, 0.5, 1.4);
+        spot.position.set(px, wallH - 0.2, pz);
+        spot.target.position.set(px, 1.2, pz); scene.add(spot, spot.target);
+        loader.load(url, (g) => {
+          const s = g.scene;
+          const box = new THREE.Box3().setFromObject(s);
+          const size = box.getSize(new THREE.Vector3()), ctr = box.getCenter(new THREE.Vector3());
+          const sc = 1.5 / (Math.max(size.x, size.y, size.z) || 1);
+          s.scale.setScalar(sc);
+          s.position.set(px - ctr.x * sc, 1 - box.min.y * sc, pz - ctr.z * sc);
+          scene.add(s);
+        }, undefined, (e) => console.warn('statue load failed', url, e));
+      });
+
+      groundEye = 1.6;
+      bounds = { hx: W / 2 - 0.6, z0: -halfLen + 0.8, z1: halfLen - 0.8 };
+      camera.position.set(0, groundEye, -halfLen + 1.5);
+      camera.lookAt(0, groundEye, 0);
+    }
+
+    if (model && model.gallery) {
+      buildGallery(model.statues || []);
+    } else if (model) {
       // Vraie scène exportée depuis Unity (glTF Draco + textures webp)
       const draco = new DRACOLoader().setDecoderPath('/draco/');
       const loader = new GLTFLoader().setDRACOLoader(draco);
@@ -426,15 +484,27 @@ export function createProjectScene(canvas, opts = {}) {
         controls.moveRight(-vel.x * dt);
         controls.moveForward(-vel.z * dt);
         const p = camera.position;
-        const rr = Math.hypot(p.x, p.z);
-        if (rr > clampR) { p.x *= clampR / rr; p.z *= clampR / rr; } // reste dans le camp
-        if (minR && rr < minR) { p.x *= minR / rr; p.z *= minR / rr; } // ne traverse pas le feu
+        if (bounds) { // galerie : reste dans la salle (murs)
+          p.x = Math.max(-bounds.hx, Math.min(bounds.hx, p.x));
+          p.z = Math.max(bounds.z0, Math.min(bounds.z1, p.z));
+        } else {
+          const rr = Math.hypot(p.x, p.z);
+          if (rr > clampR) { p.x *= clampR / rr; p.z *= clampR / rr; } // reste dans le camp
+          if (minR && rr < minR) { p.x *= minR / rr; p.z *= minR / rr; } // ne traverse pas le feu
+        }
         p.y = groundEye;
       } else if (!reducedMotion) {
-        // vue 3/4 aérienne lente tant qu'on n'est pas entré
-        const a = t * 0.05;
-        camera.position.set(Math.sin(a) * orbitR, orbitH, Math.cos(a) * orbitR);
-        camera.lookAt(0, lookY, 0);
+        if (bounds) {
+          // galerie : lent balayage depuis l'entrée tant qu'on n'est pas entré
+          const a = Math.sin(t * 0.16) * 0.4;
+          camera.position.set(Math.sin(a) * 0.7, groundEye, bounds.z0 + 0.6);
+          camera.lookAt(Math.sin(a) * 3, groundEye - 0.05, 0);
+        } else {
+          // vue 3/4 aérienne lente tant qu'on n'est pas entré
+          const a = t * 0.05;
+          camera.position.set(Math.sin(a) * orbitR, orbitH, Math.cos(a) * orbitR);
+          camera.lookAt(0, lookY, 0);
+        }
       }
       renderer.render(scene, camera);
       raf = requestAnimationFrame(tick);
@@ -512,12 +582,12 @@ export function createProjectScene(canvas, opts = {}) {
     auraFx = { outer, inner, motes, mg, seed, light };
   }
 
-  function afterHero(obj) {
+  function afterHero(obj, aura = false) {
     fitObject(obj, 2.4);
     heroBaseY = obj.position.y;
     hero = obj;
     group.add(obj);
-    buildAura();
+    if (aura) buildAura();
   }
 
   // fond spatial procédural (nébuleuse propre, sans coutures) + reflets
@@ -658,7 +728,7 @@ export function createProjectScene(canvas, opts = {}) {
         }
       });
       obj.rotation.x = Math.PI / 2; // le livre est à plat dans le FBX → couverture verte face caméra
-      afterHero(obj);
+      afterHero(obj, true); // aura magique (grimoire uniquement)
     }, undefined, (err) => { console.warn('FBX load failed:', err); addPlaceholder(); });
   } else if (model && (Array.isArray(model) || typeof model === 'string' || model.glb)) {
     const draco = new DRACOLoader().setDecoderPath('/draco/');

@@ -8,13 +8,14 @@ const SHEET = {
   grass: 'grass.webp', path: 'path.webp', river: 'river.webp', bridge: 'bridge.webp', water: 'water.webp',
   tree: 'tree.webp', rock: 'rock.webp',
   idle_front: 'idle_front.webp', idle_side: 'idle_side.webp',
-  coffre: 'coffre.webp', purse: 'purse.webp', ghit: 'ghit.webp', gdead: 'gdead.webp',
+  purse: 'purse.webp', ghit: 'ghit.webp', gdead: 'gdead.webp',
   wf: ['wf1.webp', 'wf2.webp', 'wf3.webp', 'wf4.webp'],
   wb: ['wb1.webp', 'wb2.webp', 'wb3.webp', 'wb4.webp', 'wb5.webp', 'wb6.webp'],
   wl: ['wl1.webp', 'wl2.webp', 'wl3.webp', 'wl4.webp', 'wl5.webp'],
   gw: ['gw0.webp', 'gw1.webp', 'gw2.webp', 'gw3.webp'],
   atk: ['atk0.webp', 'atk1.webp', 'atk2.webp'],
   fx: ['fx0.webp', 'fx1.webp', 'fx2.webp'],
+  chest: ['ch0.webp', 'ch1.webp', 'ch2.webp'], // fermé → entrouvert → plein d'or
 };
 
 function loadImg(src) {
@@ -57,7 +58,7 @@ export function createIsoScene(canvas, { reducedMotion } = {}) {
   // ---- entités ----
   const hero = { c: 3, r: 4, face: 'front', moving: false, anim: 0, bob: 0, atk: 0, atkFace: 'front' };
   const grog = { c: 5, r: 4, t: 0, baseC: 5, baseR: 4, flip: false, anim: 0, state: 'walk', st: 0 };
-  const chest = { c: 5, r: 2 };
+  const chest = { c: 5, r: 2, state: 'closed', t: 0 };
 
   // pièces à ramasser (sur l'herbe/le pont), réapparaissent après collecte
   const coins = [[5, 6], [2, 0], [0, 5]]
@@ -207,7 +208,19 @@ export function createIsoScene(canvas, { reducedMotion } = {}) {
       } else if (grog.state === 'hit') {
         if (grog.st > 0.4) { grog.state = 'dead'; grog.st = 0; gold += 5; goldPop = 1; floaters.push({ c: grog.c, r: grog.r, t: 0, txt: '+5' }); }
       } else if (grog.state === 'dead') {
-        if (grog.st > 1.8) { grog.state = 'walk'; grog.st = 0; grog.t = 0; }
+        // reste mort (pas de réapparition)
+      }
+
+      // --- coffre : s'ouvre à l'approche, joue l'anim, donne de l'or, se réarme au loin ---
+      const dChest = Math.hypot(chest.c - hero.c, chest.r - hero.r);
+      if (chest.state === 'closed') {
+        if (dChest < 0.9) { chest.state = 'opening'; chest.t = 0; }
+      } else if (chest.state === 'opening') {
+        chest.t += dt;
+        if (chest.t > 0.5) { chest.state = 'open'; chest.t = 0; gold += 10; goldPop = 1; floaters.push({ c: chest.c, r: chest.r, t: 0, txt: '+10' }); }
+      } else if (chest.state === 'open') {
+        chest.t += dt;
+        if (chest.t > 6 && dChest > 1.3) { chest.state = 'closed'; chest.t = 0; }
       }
 
       // --- pièces : collecte + réapparition ---
@@ -257,7 +270,12 @@ export function createIsoScene(canvas, { reducedMotion } = {}) {
         if (e.kind === 'deco') drawSprite(imgs[e.name], p.x, footY, sTile, false);
         else if (e.kind === 'coin') drawSprite(imgs.purse, p.x, footY - TW * 0.1 + Math.sin(e.ref.t * 4) * TW * 0.05, sTile * 0.42, false);
         else if (e.kind === 'fx') { const fi = Math.min(imgs.fx.length - 1, Math.floor(e.ref.t / 0.33 * imgs.fx.length)); drawSprite(imgs.fx[fi], p.x, footY, charScale, false); }
-        else if (e.kind === 'chest') drawSprite(imgs.coffre, p.x, footY, charScale * 0.8, false);
+        else if (e.kind === 'chest') {
+          let img = imgs.chest[0];
+          if (chest.state === 'opening') img = imgs.chest[Math.min(2, Math.floor(chest.t / 0.5 * imgs.chest.length))];
+          else if (chest.state === 'open') img = imgs.chest[2];
+          drawSprite(img, p.x, footY, charScale * 0.8, false);
+        }
         else if (e.kind === 'grog') {
           let img = imgs.gw[Math.floor(grog.anim)] || imgs.gw[0], bob = Math.sin(grog.t * 6) * 1.5;
           if (grog.state === 'hit') { img = imgs.ghit; bob = 0; }
@@ -296,7 +314,7 @@ export function createIsoScene(canvas, { reducedMotion } = {}) {
 
   // charge les assets puis démarre
   (async () => {
-    const flat = ['grass', 'path', 'river', 'bridge', 'water', 'tree', 'rock', 'idle_front', 'idle_side', 'coffre', 'purse', 'ghit', 'gdead'];
+    const flat = ['grass', 'path', 'river', 'bridge', 'water', 'tree', 'rock', 'idle_front', 'idle_side', 'purse', 'ghit', 'gdead'];
     await Promise.all([
       ...flat.map(async (k) => { imgs[k] = await loadImg(SHEET[k]); }),
       (async () => { imgs.wf = await Promise.all(SHEET.wf.map(loadImg)); })(),
@@ -305,6 +323,7 @@ export function createIsoScene(canvas, { reducedMotion } = {}) {
       (async () => { imgs.gw = await Promise.all(SHEET.gw.map(loadImg)); })(),
       (async () => { imgs.atk = await Promise.all(SHEET.atk.map(loadImg)); })(),
       (async () => { imgs.fx = await Promise.all(SHEET.fx.map(loadImg)); })(),
+      (async () => { imgs.chest = await Promise.all(SHEET.chest.map(loadImg)); })(),
     ]);
     resize();
     ready = true;

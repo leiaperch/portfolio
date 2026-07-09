@@ -322,10 +322,12 @@ export function createProjectScene(canvas, opts = {}) {
         spot.target.position.set(px, 1.2, pz); scene.add(spot, spot.target);
         loader.load(url, (g) => {
           const s = g.scene;
+          s.updateMatrixWorld(true); // matrices à jour avant de mesurer (sinon centre faux)
           const box = new THREE.Box3().setFromObject(s);
           const size = box.getSize(new THREE.Vector3()), ctr = box.getCenter(new THREE.Vector3());
           const sc = 1.5 / (Math.max(size.x, size.y, size.z) || 1);
           s.scale.setScalar(sc);
+          // recentre horizontalement sur le socle, base posée sur le dessus (y=1)
           s.position.set(px - ctr.x * sc, 1 - box.min.y * sc, pz - ctr.z * sc);
           scene.add(s);
         }, undefined, (e) => console.warn('statue load failed', url, e));

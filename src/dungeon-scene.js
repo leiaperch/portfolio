@@ -189,7 +189,7 @@ export function createDungeonScene(canvas, { reducedMotion } = {}) {
         if (!trans) for (const d of doors) if (Math.floor(hero.c) === d.c && Math.floor(hero.r) === d.r) {
           trans = 0.6; transTo = d.to; transSide = OPP[d.side];
         }
-      } else hero.anim += dt * 2.2;
+      } else hero.anim = 0; // immobile → frame fixe (pas d'animation à l'arrêt)
       if (hero.invuln > 0) hero.invuln = Math.max(0, hero.invuln - dt);
 
       // ---- ennemis : poursuite + contact + mort ----

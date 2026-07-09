@@ -241,7 +241,7 @@ export function createDungeonScene(canvas, { reducedMotion } = {}) {
           if (e.flash > 0 && Math.floor(now / 55) % 2) continue; // clignote touché
           const scale = e.dying ? Math.max(0, e.dying / 0.45) : 1;
           const i = Math.floor(e.anim) % imgs.e.length;
-          drawChar(imgs.e[i], sx, sy, Z * 1.5 * scale, e.flip);
+          drawChar(imgs.e[i], sx, sy, Z * 1.25 * scale, e.flip);
         }
       }
 

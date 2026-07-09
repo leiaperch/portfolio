@@ -1,17 +1,18 @@
-// Vue « page projet » plein écran : hero 3D (orbit/exploration) + titre + techs,
-// puis statut, univers, ce que j'ai construit et galerie. Textes bilingues
-// re-rendus au changement de langue, bouton de langue dans l'en-tête.
+// Vue « page projet » plein écran : hero 3D (orbit/exploration/iso/donjon) +
+// titre + techs, puis statut, univers, ce que j'ai construit et galerie. Textes
+// bilingues re-rendus au changement de langue. Construction 100 % createElement
+// (aucun innerHTML sur des éléments live).
 
 import { projects } from '../data/projects.js';
 import { createProjectScene } from '../project-scene.js';
 import { createIsoScene } from '../iso-scene.js';
 import { createDungeonScene } from '../dungeon-scene.js';
 import { t, tv, getLang, toggleLang, onLang } from '../i18n.js';
+import { el, clear } from '../dom.js';
 
 const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-const chips = (tech) =>
-  tech.map((x) => `<span class="chip"><span class="chip-dot"></span>${x}</span>`).join('');
+const chip = (x) => el('span', { class: 'chip' }, el('span', { class: 'chip-dot' }), x);
 
 export function renderProject(id, { onCursorRefresh } = {}) {
   const p = projects.find((x) => x.id === id);
@@ -27,118 +28,126 @@ export function renderProject(id, { onCursorRefresh } = {}) {
   const hasCanvas = is3D || isIso || isDungeon;
   const isEmbed = p.mode === 'embed';
 
-  const overlay = (isExplore || isIso || isDungeon)
-    ? `<div class="pv-scene-hint"><span class="pv-scene-verb"></span><span class="pv-scene-keys"></span></div>`
-    : is3D
-      ? `<div class="pv-hint"></div>`
-      : isEmbed
-        ? `<div class="pv-embed-cta">
-             <button class="pv-play" data-embed="${p.embed}" data-cursor="JOUER"><span class="pv-play-lbl"></span></button>
-             <a class="pv-fs" href="${p.embed}" target="_blank" rel="noopener" data-cursor>↗ ${tv({ fr: 'nouvel onglet', en: 'new tab' })}</a>
-           </div>`
-        : (p.play ? `<a class="pv-play" href="${p.play}" target="_blank" rel="noopener" data-cursor="JOUER"><span class="pv-play-lbl"></span></a>` : '');
+  // références des nœuds à traduire / mettre à jour
+  const r = {};
 
-  const view = document.createElement('div');
-  view.className = 'project-view';
-  view.innerHTML = `
-    <header class="pv-top">
-      <a class="pv-back" href="#/" data-cursor></a>
-      <div class="pv-top-r">
-        <button class="lang" data-lang="${getLang()}" aria-label="Changer de langue">
-          <span data-l="fr">FR</span><span class="sep">/</span><span data-l="en">EN</span>
-        </button>
-        <span class="pv-crumb"></span>
-      </div>
-    </header>
+  // --- overlay du hero selon le mode ---
+  let overlay = null;
+  if (isExplore || isIso || isDungeon) {
+    r.sceneVerb = el('span', { class: 'pv-scene-verb' });
+    r.sceneKeys = el('span', { class: 'pv-scene-keys' });
+    overlay = el('div', { class: 'pv-scene-hint' }, r.sceneVerb, r.sceneKeys);
+  } else if (is3D) {
+    r.hint = el('div', { class: 'pv-hint' });
+    overlay = r.hint;
+  } else if (isEmbed) {
+    r.playLbl = el('span', { class: 'pv-play-lbl' });
+    r.embedBtn = el('button', { class: 'pv-play', dataset: { embed: p.embed, cursor: 'JOUER' } }, r.playLbl);
+    overlay = el('div', { class: 'pv-embed-cta' }, r.embedBtn,
+      el('a', { class: 'pv-fs', href: p.embed, target: '_blank', rel: 'noopener', dataset: { cursor: '' } },
+        '↗ ' + tv({ fr: 'nouvel onglet', en: 'new tab' })));
+  } else if (p.play) {
+    r.playLbl = el('span', { class: 'pv-play-lbl' });
+    overlay = el('a', { class: 'pv-play', href: p.play, target: '_blank', rel: 'noopener', dataset: { cursor: 'JOUER' } }, r.playLbl);
+  }
 
-    <section class="pv-hero ${isExplore || isIso || isDungeon ? 'is-explore' : ''} ${isIso || isDungeon ? 'is-iso' : ''} ${hasCanvas ? '' : 'is-cover'}">
-      ${hasCanvas ? '<canvas class="pv-canvas"></canvas>' : `<div class="pv-hero-cover"><img src="${p.cover}" alt="${p.title}" /></div>`}
-      <div class="pv-hero-txt">
-        <div class="pv-num">${num} / ${String(projects.length).padStart(2, '0')}</div>
-        <h1 class="pv-title">${p.title}</h1>
-        <div class="pv-type"></div>
-        <div class="pv-tech">${chips(p.tech)}</div>
-      </div>
-      ${overlay}
-    </section>
+  const heroMedia = hasCanvas
+    ? el('canvas', { class: 'pv-canvas' })
+    : el('div', { class: 'pv-hero-cover' }, el('img', { src: p.cover, alt: p.title }));
 
-    <section class="pv-body">
-      <p class="pv-summary"></p>
-      <div class="pv-status"></div>
-      <div class="pv-about-wrap"></div>
-      <div class="pv-features-wrap"></div>
-      <div class="pv-gallery-wrap"></div>
-    </section>
+  r.back = el('a', { class: 'pv-back', href: '#/', dataset: { cursor: '' } });
+  r.lang = el('button', { class: 'lang', dataset: { lang: getLang() }, 'aria-label': 'Changer de langue' },
+    el('span', { 'data-l': 'fr', text: 'FR' }), el('span', { class: 'sep', text: '/' }), el('span', { 'data-l': 'en', text: 'EN' }));
+  r.crumb = el('span', { class: 'pv-crumb' });
+  r.type = el('div', { class: 'pv-type' });
+  r.summary = el('p', { class: 'pv-summary' });
+  r.status = el('div', { class: 'pv-status' });
+  r.aboutWrap = el('div', { class: 'pv-about-wrap' });
+  r.featWrap = el('div', { class: 'pv-features-wrap' });
+  r.galWrap = el('div', { class: 'pv-gallery-wrap' });
+  r.nextLbl = el('span', { class: 'pv-next-lbl' });
+  r.next = el('a', { class: 'pv-next', href: `#/p/${next.id}`, dataset: { cursor: '' } },
+    r.nextLbl, el('span', { class: 'pv-next-name', text: `${next.title} →` }));
 
-    <footer class="pv-foot">
-      <a class="pv-next" href="#/p/${next.id}" data-cursor>
-        <span class="pv-next-lbl"></span>
-        <span class="pv-next-name">${next.title} →</span>
-      </a>
-    </footer>
-  `;
+  const heroClass = ['pv-hero', (isExplore || isIso || isDungeon) && 'is-explore', (isIso || isDungeon) && 'is-iso', !hasCanvas && 'is-cover']
+    .filter(Boolean).join(' ');
+
+  const view = el('div', { class: 'project-view' },
+    el('header', { class: 'pv-top' }, r.back, el('div', { class: 'pv-top-r' }, r.lang, r.crumb)),
+    el('section', { class: heroClass },
+      heroMedia,
+      el('div', { class: 'pv-hero-txt' },
+        el('div', { class: 'pv-num', text: `${num} / ${String(projects.length).padStart(2, '0')}` }),
+        el('h1', { class: 'pv-title', text: p.title }),
+        r.type,
+        el('div', { class: 'pv-tech' }, p.tech.map(chip)),
+      ),
+      overlay,
+    ),
+    el('section', { class: 'pv-body' }, r.summary, r.status, r.aboutWrap, r.featWrap, r.galWrap),
+    el('footer', { class: 'pv-foot' }, r.next),
+  );
+
+  function renderGallery() {
+    clear(r.galWrap);
+    if (p.video) {
+      r.galWrap.append(
+        el('h3', { class: 'pv-sec-h', text: t('pv_gallery') }),
+        el('div', { class: 'pv-gallery pv-gallery-media' },
+          el('figure', { class: 'pv-feature pv-feature-video' },
+            el('video', { class: 'pv-feature-vid', src: p.video, poster: p.poster, muted: true, loop: true, autoplay: true, playsinline: true, preload: 'metadata', controls: true })),
+          p.mediaCaption && el('figcaption', { class: 'pv-media-cap', text: tv(p.mediaCaption) }),
+          p.gallery?.length && el('div', { class: 'pv-stills' },
+            p.gallery.map((src) => el('figure', { class: 'pv-still' }, el('img', { src, alt: '', loading: 'lazy' })))),
+        ),
+      );
+    } else if (p.gallery?.length) {
+      r.galWrap.append(
+        el('h3', { class: 'pv-sec-h', text: t('pv_gallery') }),
+        el('div', { class: 'pv-gallery' },
+          el('figure', { class: 'pv-feature' }, el('img', { class: 'pv-feature-img', src: p.gallery[0], alt: p.title })),
+          p.gallery.length > 1 && el('div', { class: 'pv-thumbs' },
+            p.gallery.map((src, i) => el('button', { class: 'pv-thumb' + (i === 0 ? ' active' : ''), dataset: { thumb: src }, 'aria-label': `Aperçu ${i + 1}` },
+              el('img', { src, alt: '', loading: 'lazy' })))),
+        ),
+      );
+    } else if (p.about) {
+      r.galWrap.append(el('h3', { class: 'pv-sec-h', text: t('pv_gallery') }), el('p', { class: 'pv-empty', text: t('pv_gallery_soon') }));
+    }
+  }
 
   function updateTexts() {
-    const q = (s) => view.querySelector(s);
-    const back = q('.pv-back'); back.textContent = t('pv_back'); back.dataset.cursor = t('cur_back');
-    q('.pv-crumb').textContent = t('realm_' + p.realm);
-    q('.pv-type').textContent = `${tv(p.type)} — ${p.year}`;
-    q('.pv-summary').textContent = tv(p.summary);
-    q('.pv-next-lbl').textContent = t('pv_next_lbl');
-    q('.pv-next').dataset.cursor = t('cur_next');
-    view.querySelector('.lang').dataset.lang = getLang();
+    r.back.textContent = t('pv_back'); r.back.dataset.cursor = t('cur_back');
+    r.crumb.textContent = t('realm_' + p.realm);
+    r.type.textContent = `${tv(p.type)} — ${p.year}`;
+    r.summary.textContent = tv(p.summary);
+    r.nextLbl.textContent = t('pv_next_lbl'); r.next.dataset.cursor = t('cur_next');
+    r.lang.dataset.lang = getLang();
 
-    q('.pv-status').innerHTML = p.status ? `<b>●</b> ${tv(p.status)}` : '';
+    clear(r.status);
+    if (p.status) r.status.append(el('b', { text: '●' }), ' ' + tv(p.status));
 
-    q('.pv-about-wrap').innerHTML = p.about
-      ? `<h3 class="pv-sec-h">${t('pv_about')}</h3>
-         <div class="pv-about">${tv(p.about).map((par) => `<p>${par}</p>`).join('')}</div>`
-      : '';
+    clear(r.aboutWrap);
+    if (p.about) r.aboutWrap.append(
+      el('h3', { class: 'pv-sec-h', text: t('pv_about') }),
+      el('div', { class: 'pv-about' }, tv(p.about).map((par) => el('p', { text: par }))),
+    );
 
-    q('.pv-features-wrap').innerHTML = p.features
-      ? `<h3 class="pv-sec-h">${t('pv_features')}</h3>
-         <div class="pv-features">${p.features
-           .map((f) => `<div class="pv-feat"><h4>${tv(f.title)}</h4><p>${tv(f.text)}</p></div>`)
-           .join('')}</div>`
-      : '';
+    clear(r.featWrap);
+    if (p.features) r.featWrap.append(
+      el('h3', { class: 'pv-sec-h', text: t('pv_features') }),
+      el('div', { class: 'pv-features' }, p.features.map((f) =>
+        el('div', { class: 'pv-feat' }, el('h4', { text: tv(f.title) }), el('p', { text: tv(f.text) })))),
+    );
 
-    const gw = q('.pv-gallery-wrap');
-    if (p.video) {
-      const stills = (p.gallery || [])
-        .map((src) => `<figure class="pv-still"><img src="${src}" alt="" loading="lazy" /></figure>`)
-        .join('');
-      gw.innerHTML = `<h3 class="pv-sec-h">${t('pv_gallery')}</h3>
-        <div class="pv-gallery pv-gallery-media">
-          <figure class="pv-feature pv-feature-video">
-            <video class="pv-feature-vid" src="${p.video}" ${p.poster ? `poster="${p.poster}"` : ''} muted loop autoplay playsinline preload="metadata" controls></video>
-          </figure>
-          ${p.mediaCaption ? `<figcaption class="pv-media-cap">${tv(p.mediaCaption)}</figcaption>` : ''}
-          ${stills ? `<div class="pv-stills">${stills}</div>` : ''}
-        </div>`;
-    } else if (p.gallery?.length) {
-      const thumbs = p.gallery
-        .map((src, i) => `<button class="pv-thumb${i === 0 ? ' active' : ''}" data-thumb="${src}" aria-label="Aperçu ${i + 1}"><img src="${src}" alt="" loading="lazy" /></button>`)
-        .join('');
-      gw.innerHTML = `<h3 class="pv-sec-h">${t('pv_gallery')}</h3>
-        <div class="pv-gallery">
-          <figure class="pv-feature"><img class="pv-feature-img" src="${p.gallery[0]}" alt="${p.title}" /></figure>
-          ${p.gallery.length > 1 ? `<div class="pv-thumbs">${thumbs}</div>` : ''}
-        </div>`;
-    } else if (p.about) {
-      gw.innerHTML = `<h3 class="pv-sec-h">${t('pv_gallery')}</h3>
-        <p class="pv-empty">${t('pv_gallery_soon')}</p>`;
-    } else {
-      gw.innerHTML = '';
-    }
+    renderGallery();
 
-    if (isExplore || isIso || isDungeon) {
+    if (r.sceneVerb) {
       const pfx = isDungeon ? 'pv_dungeon' : isIso ? 'pv_iso' : 'pv_explore';
-      q('.pv-scene-verb').textContent = t(pfx + '_verb');
-      q('.pv-scene-keys').textContent = t(pfx + '_keys');
-    } else if (is3D) {
-      q('.pv-hint').textContent = t('pv_orbit_hint');
-    }
-    const playLbl = q('.pv-play-lbl'); if (playLbl) playLbl.textContent = '▶ ' + t('pv_play');
+      r.sceneVerb.textContent = t(pfx + '_verb');
+      r.sceneKeys.textContent = t(pfx + '_keys');
+    } else if (r.hint) r.hint.textContent = t('pv_orbit_hint');
+    if (r.playLbl) r.playLbl.textContent = '▶ ' + t('pv_play');
     onCursorRefresh?.();
   }
 
@@ -147,7 +156,7 @@ export function renderProject(id, { onCursorRefresh } = {}) {
   requestAnimationFrame(() => view.classList.add('in'));
 
   const offLang = onLang(updateTexts);
-  view.querySelector('.lang').addEventListener('click', toggleLang);
+  r.lang.addEventListener('click', toggleLang);
 
   // galerie : clic sur une vignette → change l'image principale (délégation)
   view.addEventListener('click', (e) => {
@@ -165,37 +174,26 @@ export function renderProject(id, { onCursorRefresh } = {}) {
 
   let exploring = false;
   let scene = null;
+  const canvas = () => view.querySelector('.pv-canvas');
   if (isDungeon) {
-    scene = createDungeonScene(view.querySelector('.pv-canvas'), { reducedMotion });
+    scene = createDungeonScene(canvas(), { reducedMotion });
   } else if (isIso) {
-    scene = createIsoScene(view.querySelector('.pv-canvas'), { reducedMotion });
+    scene = createIsoScene(canvas(), { reducedMotion });
   } else if (is3D) {
-    scene = createProjectScene(view.querySelector('.pv-canvas'), {
+    scene = createProjectScene(canvas(), {
       mode: p.mode,
       model: p.scene,
       reducedMotion,
-      onLockChange: (locked) => {
-        exploring = locked;
-        view.classList.toggle('exploring', locked);
-      },
+      onLockChange: (locked) => { exploring = locked; view.classList.toggle('exploring', locked); },
     });
-    if (isExplore) {
-      view.querySelector('.pv-canvas')?.addEventListener('click', () => {
-        if (!exploring) scene.lock?.();
-      });
-    }
+    if (isExplore) canvas()?.addEventListener('click', () => { if (!exploring) scene.lock?.(); });
   }
 
   // jeu web déployé : clic « Jouer » → charge l'iframe jouable en place
-  view.querySelector('.pv-play[data-embed]')?.addEventListener('click', (e) => {
-    const url = e.currentTarget.dataset.embed;
+  r.embedBtn?.addEventListener('click', () => {
     const cover = view.querySelector('.pv-hero-cover');
     if (!cover) return;
-    const frame = document.createElement('iframe');
-    frame.className = 'pv-embed-frame';
-    frame.src = url;
-    frame.setAttribute('allow', 'fullscreen; autoplay');
-    frame.title = p.title;
+    const frame = el('iframe', { class: 'pv-embed-frame', src: p.embed, allow: 'fullscreen; autoplay', title: p.title });
     cover.replaceWith(frame);
     view.classList.add('playing');
   });

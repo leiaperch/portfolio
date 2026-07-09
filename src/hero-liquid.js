@@ -102,7 +102,7 @@ export function initLiquid(canvas, { reducedMotion = false, onGrabStart, onGrabE
       moved += Math.abs(dx) + Math.abs(dy);
       lx = e.clientX; ly = e.clientY;
     }
-  });
+  }, { passive: true });
 
   const press = (cx, cy) => { down = true; moved = 0; lx = cx; ly = cy; onGrabStart?.(); };
   const release = () => {
@@ -123,7 +123,10 @@ export function initLiquid(canvas, { reducedMotion = false, onGrabStart, onGrabE
   }, { passive: true });
 
   const t0 = performance.now();
+  let raf = 0, wantRun = true;
+  const active = () => wantRun && !document.hidden;
   const frame = (now) => {
+    if (!active()) { raf = 0; return; }          // stoppé hors landing / onglet caché
     const time = (now - t0) / 1000;
     rotx += velx; roty += vely; velx *= 0.94; vely *= 0.94;
     if (!reducedMotion) rotx += 0.0016;
@@ -139,7 +142,14 @@ export function initLiquid(canvas, { reducedMotion = false, onGrabStart, onGrabE
     gl.uniform1f(uGrab, grab);
     gl.uniform1f(uPulse, Math.max(0, pulse));
     gl.drawArrays(gl.TRIANGLES, 0, 3);
-    requestAnimationFrame(frame);
+    raf = requestAnimationFrame(frame);
   };
-  requestAnimationFrame(frame);
+  const kick = () => { if (!raf && active()) raf = requestAnimationFrame(frame); };
+  document.addEventListener('visibilitychange', kick);
+  kick();
+
+  return {
+    pause() { wantRun = false; },
+    resume() { wantRun = true; kick(); },
+  };
 }

@@ -17,15 +17,19 @@ export function initCursor() {
   window.addEventListener('mousemove', (e) => {
     mx = e.clientX; my = e.clientY;
     dot.style.transform = `translate(${mx}px,${my}px) translate(-50%,-50%)`;
-  });
+  }, { passive: true });
 
+  let raf = 0;
   const loop = () => {
+    if (document.hidden) { raf = 0; return; }
     rx += (mx - rx) * 0.2;
     ry += (my - ry) * 0.2;
     ring.style.transform = `translate(${rx}px,${ry}px) translate(-50%,-50%)`;
-    requestAnimationFrame(loop);
+    raf = requestAnimationFrame(loop);
   };
-  requestAnimationFrame(loop);
+  const kick = () => { if (!raf && !document.hidden) raf = requestAnimationFrame(loop); };
+  document.addEventListener('visibilitychange', kick);
+  kick();
 
   const bindHovers = () => {
     document.querySelectorAll('[data-cursor]').forEach((el) => {

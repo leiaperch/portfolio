@@ -4,6 +4,9 @@ import { initCursor } from './cursor.js';
 import { initLiquid } from './hero-liquid.js';
 import { initRouter } from './router.js';
 import { t, tv, getLang, toggleLang, onLang } from './i18n.js';
+import { el, clear, parseHTML } from './dom.js';
+
+const chip = (x) => el('span', { class: 'chip' }, el('span', { class: 'chip-dot' }), x);
 
 const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -42,29 +45,27 @@ function renderWorks() {
   const host = document.getElementById('works');
   if (!host) return;
   const view = t('cur_view');
-  host.innerHTML = projects
-    .map((p, i) => {
-      const n = String(i + 1).padStart(2, '0');
-      const chips = p.tech.map((x) => `<span class="chip"><span class="chip-dot"></span>${x}</span>`).join('');
-      return `<a class="prow" data-cursor="${view}" href="#/p/${p.id}">
-        <span class="glow"></span>
-        <span class="idx">${n}</span>
-        <span class="pname">${p.title}</span>
-        <span class="meta">
-          <span class="prow-type">${tv(p.type)}<span class="prow-year">${p.year}</span></span>
-          <span class="prow-tech">${chips}</span>
-        </span>
-      </a>`;
-    })
-    .join('');
+  clear(host);
+  projects.forEach((p, i) => {
+    host.append(el('a', { class: 'prow', href: `#/p/${p.id}`, dataset: { cursor: view } },
+      el('span', { class: 'glow' }),
+      el('span', { class: 'idx', text: String(i + 1).padStart(2, '0') }),
+      el('span', { class: 'pname', text: p.title }),
+      el('span', { class: 'meta' },
+        el('span', { class: 'prow-type' }, tv(p.type), el('span', { class: 'prow-year', text: p.year })),
+        el('span', { class: 'prow-tech' }, p.tech.map(chip)),
+      ),
+    ));
+  });
 }
 
 /* ---------- ticker ---------- */
 function renderTicker() {
   const track = document.getElementById('tick');
   if (!track) return;
-  const seq = t('ticker').map((x) => `${x} <b class="s">◆</b>`).join(' ');
-  track.innerHTML = `${seq} ${seq} `;
+  const seq = () => t('ticker').flatMap((x) => [`${x} `, el('b', { class: 's', text: '◆' }), ' ']);
+  clear(track);
+  track.append(...seq(), ...seq());
 }
 
 /* ---------- textes statiques de la landing ---------- */
@@ -77,7 +78,7 @@ function applyLanding() {
   set('contact-btn-lbl', t('contact_btn'));
   set('footer-copy', t('footer_copy'));
   const tag = document.getElementById('tagline');
-  if (tag) tag.innerHTML = t('hero_tagline');
+  if (tag) { clear(tag); tag.append(parseHTML(t('hero_tagline'))); }
   // libellés du curseur traduits
   document.querySelectorAll('#nav-works, #nav-contact, .foot a').forEach((el) => (el.dataset.cursor = t('cur_view')));
   // état du bouton de langue
@@ -116,21 +117,28 @@ fitHeroName();
 document.getElementById('lang-toggle')?.addEventListener('click', toggleLang);
 onLang(() => { renderAll(); startRoles(); });
 
-window.addEventListener('resize', fitHeroName);
+let resizeRaf = 0;
+window.addEventListener('resize', () => {
+  cancelAnimationFrame(resizeRaf);
+  resizeRaf = requestAnimationFrame(fitHeroName);
+}, { passive: true });
 if (document.fonts?.ready) document.fonts.ready.then(fitHeroName);
 
 const glCanvas = document.getElementById('gl');
-initLiquid(glCanvas, {
+const liquid = initLiquid(glCanvas, {
   reducedMotion,
   onGrabStart: () => cursor.setGrabbing(true),
   onGrabEnd: () => cursor.setGrabbing(false),
 });
 
 /* ---------- navigation landing <-> page projet ---------- */
+// Le raymarch WebGL est lourd : on l'arrête tant qu'on est sur une page projet
+// (canvas caché) pour rendre le GPU à la scène 3D du projet.
 initRouter({
-  onLanding: () => { glCanvas.style.display = ''; },
+  onLanding: () => { glCanvas.style.display = ''; liquid.resume?.(); },
   onProject: async (id) => {
     glCanvas.style.display = 'none';
+    liquid.pause?.();
     const { renderProject } = await import('./views/project.js');
     return renderProject(id, { onCursorRefresh: () => cursor.refresh?.() });
   },

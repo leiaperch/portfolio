@@ -4,6 +4,7 @@
 
 import { projects } from '../data/projects.js';
 import { createProjectScene } from '../project-scene.js';
+import { createIsoScene } from '../iso-scene.js';
 import { t, tv, getLang, toggleLang, onLang } from '../i18n.js';
 
 const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -19,10 +20,12 @@ export function renderProject(id, { onCursorRefresh } = {}) {
   const num = String(idx + 1).padStart(2, '0');
   const next = projects[(idx + 1) % projects.length];
   const isExplore = p.mode === 'explore';
+  const isIso = p.mode === 'iso';
   const is3D = p.mode === 'orbit' || p.mode === 'explore';
+  const hasCanvas = is3D || isIso;
   const isEmbed = p.mode === 'embed';
 
-  const overlay = isExplore
+  const overlay = (isExplore || isIso)
     ? `<div class="pv-scene-hint"><span class="pv-scene-verb"></span><span class="pv-scene-keys"></span></div>`
     : is3D
       ? `<div class="pv-hint"></div>`
@@ -46,8 +49,8 @@ export function renderProject(id, { onCursorRefresh } = {}) {
       </div>
     </header>
 
-    <section class="pv-hero ${isExplore ? 'is-explore' : ''} ${is3D ? '' : 'is-cover'}">
-      ${is3D ? '<canvas class="pv-canvas"></canvas>' : `<div class="pv-hero-cover"><img src="${p.cover}" alt="${p.title}" /></div>`}
+    <section class="pv-hero ${isExplore || isIso ? 'is-explore' : ''} ${isIso ? 'is-iso' : ''} ${hasCanvas ? '' : 'is-cover'}">
+      ${hasCanvas ? '<canvas class="pv-canvas"></canvas>' : `<div class="pv-hero-cover"><img src="${p.cover}" alt="${p.title}" /></div>`}
       <div class="pv-hero-txt">
         <div class="pv-num">${num} / ${String(projects.length).padStart(2, '0')}</div>
         <h1 class="pv-title">${p.title}</h1>
@@ -126,9 +129,9 @@ export function renderProject(id, { onCursorRefresh } = {}) {
       gw.innerHTML = '';
     }
 
-    if (isExplore) {
-      q('.pv-scene-verb').textContent = t('pv_explore_verb');
-      q('.pv-scene-keys').textContent = t('pv_explore_keys');
+    if (isExplore || isIso) {
+      q('.pv-scene-verb').textContent = t(isIso ? 'pv_iso_verb' : 'pv_explore_verb');
+      q('.pv-scene-keys').textContent = t(isIso ? 'pv_iso_keys' : 'pv_explore_keys');
     } else if (is3D) {
       q('.pv-hint').textContent = t('pv_orbit_hint');
     }
@@ -159,7 +162,9 @@ export function renderProject(id, { onCursorRefresh } = {}) {
 
   let exploring = false;
   let scene = null;
-  if (is3D) {
+  if (isIso) {
+    scene = createIsoScene(view.querySelector('.pv-canvas'), { reducedMotion });
+  } else if (is3D) {
     scene = createProjectScene(view.querySelector('.pv-canvas'), {
       mode: p.mode,
       model: p.scene,

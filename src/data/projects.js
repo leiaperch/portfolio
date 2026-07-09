@@ -206,4 +206,32 @@ export const projects = [
     cover: null,
     gallery: ['images/internship/mercado-base.jpg'],
   },
+  {
+    id: 'fill-your-pockets',
+    title: 'Fill Your Pockets',
+    realm: 'I',
+    type: { fr: 'Rogue-like isométrique 2.5D', en: 'Isometric 2.5D roguelike' },
+    tech: ['Unity', 'URP 2D', 'C#', 'Game Art'],
+    year: '2023',
+    mode: 'iso',
+    scene: { iso: true },
+    embed: null,
+    status: { fr: 'Projet d’équipe · Stage · Setúbal', en: 'Team project · Internship · Setúbal' },
+    summary: {
+      fr: 'Rogue-like isométrique en 2.5D inspiré de Dofus, réalisé en équipe pendant mon stage à Setúbal : on traverse deux niveaux générés, on combat et on remplit ses poches d’or. Direction artistique et sprites dessinés à la main par moi.',
+      en: 'An isometric 2.5D roguelike inspired by Dofus, built with a team during my internship in Setúbal: cross two generated levels, fight and fill your pockets with gold. Art direction and hand-drawn sprites by me.',
+    },
+    about: {
+      fr: [
+        'Fill Your Pockets est un rogue-like isométrique 2.5D à la Dofus : deux niveaux, un héros qui explore, ramasse l’or, affronte des Grogs et déjoue des pièges avant la sortie. J’y ai porté la direction artistique — héros, ennemis, coffres et tuiles désert, tout est dessiné main.',
+        'La scène ci-dessus rejoue l’arène avec mes vrais sprites : déplace le héros (ZQSD / flèches) sur les tuiles cubes, autour du Grog et du coffre. Côté équipe, développé sous Unity (URP 2D, C#) pendant le stage.',
+      ],
+      en: [
+        'Fill Your Pockets is an isometric 2.5D roguelike à la Dofus: two levels, a hero who explores, grabs gold, fights Grogs and dodges traps before the exit. I led the art direction — hero, enemies, chests and desert tiles, all hand-drawn.',
+        'The scene above replays the arena with my real sprites: move the hero (WASD / arrows) across the cube tiles, around the Grog and the chest. As a team, built in Unity (2D URP, C#) during the internship.',
+      ],
+    },
+    cover: null,
+    gallery: [],
+  },
 ];

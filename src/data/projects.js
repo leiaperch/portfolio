@@ -164,11 +164,11 @@ export const projects = [
     about: {
       fr: [
         'Kaldrith est un rogue-like 2D top-down : le dernier prêtre traverse un donjon rongé par la corruption, affrontant quatre factions — les Fixes, les Proliférants, les Écarlates et les Errants — pour reconquérir les fragments de la Trinité.',
-        'Le donjon ci-dessus est jouable avec mes vrais assets : balade le prêtre (ZQSD / flèches) d’une salle à l’autre en franchissant les portes, frappe les chevaliers de pierre (faction Fixes) à la dague (Espace / clic) — tes trois cœurs en HUD — dans des salles éclairées aux brasiers, avec coffre et autel de corruption. Développé sous Unity 6 (URP 2D, New Input System, un seul assembly).',
+        'Le donjon ci-dessus est jouable avec mes vrais assets : balade le prêtre (ZQSD / flèches) d’une salle à l’autre en franchissant les portes, frappe les chevaliers de pierre (faction Fixes) à la dague (Espace / clic) — tes trois cœurs en HUD — dans des salles éclairées aux brasiers. La corruption (nappes violettes) se propage sur le sol depuis l’autel, ronge le prêtre qui s’y attarde, et se purifie à la dague. Développé sous Unity 6 (URP 2D, New Input System, un seul assembly).',
       ],
       en: [
         'Kaldrith is a top-down 2D roguelike: the last priest crosses a dungeon eaten by corruption, facing four factions — the Fixed, the Proliferants, the Scarlets and the Wanderers — to reclaim the fragments of the Trinity.',
-        'The dungeon above is playable with my real assets: walk the priest (WASD / arrows) from room to room through the doors, strike the stone knights (Fixed faction) with the dagger (Space / click) — three hearts in the HUD — across torchlit rooms with a chest and a corruption altar. Built in Unity 6 (2D URP, New Input System, single assembly).',
+        'The dungeon above is playable with my real assets: walk the priest (WASD / arrows) from room to room through the doors, strike the stone knights (Fixed faction) with the dagger (Space / click) — three hearts in the HUD — across torchlit rooms. Corruption (purple pools) spreads over the floor from the altar, drains the priest who lingers in it, and is purified with the dagger. Built in Unity 6 (2D URP, New Input System, single assembly).',
       ],
     },
     cover: null,

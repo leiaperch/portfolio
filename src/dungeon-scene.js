@@ -250,20 +250,18 @@ export function createDungeonScene(canvas, { reducedMotion } = {}) {
         }
       }
 
-      // coup de dague : croissant d'acier balayé devant le héros
-      if (hero.atk > 0) {
-        const prog = 1 - hero.atk / 0.32;               // 0 → 1
-        const alpha = Math.sin(prog * Math.PI);          // apparaît puis s'efface
-        const hx = ox + (hero.c + hero.fx * 0.5) * Z, hy = oy + (hero.r + hero.fy * 0.5) * Z - Z * 0.35;
-        const base = Math.atan2(hero.fy, hero.fx || (hero.flip ? 0.001 : -0.001));
-        const a = base + (prog - 0.5) * 2.0;             // balaye l'arc
-        const R = Z * 0.9;
-        ctx.save(); ctx.translate(hx, hy); ctx.lineCap = 'round'; ctx.globalCompositeOperation = 'lighter';
-        ctx.strokeStyle = `rgba(150,190,255,${0.4 * alpha})`; ctx.lineWidth = Z * 0.36;
-        ctx.beginPath(); ctx.arc(0, 0, R, a - 0.42, a + 0.42); ctx.stroke();
-        ctx.strokeStyle = `rgba(255,255,255,${0.95 * alpha})`; ctx.lineWidth = Z * 0.13;
-        ctx.beginPath(); ctx.arc(0, 0, R, a - 0.5, a + 0.5); ctx.stroke();
-        ctx.restore();
+      // coup de dague : VFX de slash (asset du jeu, 4 frames) devant le héros
+      if (hero.atk > 0 && imgs.slash && imgs.slash[0]) {
+        const prog = 1 - hero.atk / 0.32;                // 0 → 1
+        const fr = imgs.slash[Math.min(imgs.slash.length - 1, Math.floor(prog * imgs.slash.length))];
+        if (fr) {
+          const sx = ox + (hero.c + hero.fx * 0.6) * Z, sy = oy + (hero.r + hero.fy * 0.6) * Z - Z * 0.35;
+          const hh = Z * 1.8, ww = fr.width / fr.height * hh;
+          ctx.save(); ctx.translate(sx, sy); ctx.rotate(Math.atan2(hero.fy, hero.fx));
+          ctx.globalAlpha = prog > 0.82 ? Math.max(0, (1 - prog) / 0.18) : 1;
+          ctx.drawImage(fr, -ww / 2, -hh / 2, ww, hh);
+          ctx.restore();
+        }
       }
 
       // ---- lumière brasiers + vignette ----
@@ -296,6 +294,7 @@ export function createDungeonScene(canvas, { reducedMotion } = {}) {
     imgs.tiles = await loadImg('tiles.webp');
     imgs.p = await Promise.all([0, 1, 2, 3, 4].map((i) => loadImg('p' + i + '.webp')));
     imgs.e = await Promise.all([0, 1, 2, 3].map((i) => loadImg('e' + i + '.webp')));
+    imgs.slash = await Promise.all([0, 1, 2, 3].map((i) => loadImg('slash' + i + '.webp')));
     loadRoom(0, null); hero.c = midC + 0.5; hero.r = midR + 0.5;
     resize();
     ready = true;

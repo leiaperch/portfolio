@@ -42,7 +42,6 @@ export function createDungeonScene(canvas, { reducedMotion } = {}) {
 
   // état vivant de la salle courante
   let curRoom = 0, floor = [], overlays = [], blocked = new Set(), doors = [], braziers = [], enemies = [];
-  let corrupt = new Set(), corruptT = 0, heroCorruptT = 0; // mécanique de corruption (creep purple)
   const hero = { c: midC + 0.5, r: midR + 0.5, fx: 0, fy: 1, flip: false, moving: false, anim: 0, atk: 0, atkHit: false, hp: 3, invuln: 0, dead: 0 };
 
   function makeEnemy(c, r) { return { c: c + 0.5, r: r + 0.5, hp: 2, anim: Math.random() * 4, flip: false, flash: 0, kx: 0, ky: 0, dying: 0 }; }
@@ -76,12 +75,6 @@ export function createDungeonScene(canvas, { reducedMotion } = {}) {
       if (kind === 'brazier') braziers.push({ c, r });
     }
     enemies = def.enemies.map(([c, r]) => makeEnemy(c, r));
-    // graine de corruption : forte autour de l'autel, + quelques foyers
-    corrupt = new Set(); corruptT = 0; heroCorruptT = 0;
-    const seedCells = [];
-    for (const [c, r, kind] of def.props) if (kind === 'altar') seedCells.push([c, r - 1], [c - 1, r], [c + 1, r], [c, r + 1], [c - 1, r - 1], [c + 1, r - 1]);
-    for (let k = 0; k < 3; k++) seedCells.push([2 + Math.floor(rnd() * (COLS - 4)), 2 + Math.floor(rnd() * (ROWS - 4))]);
-    for (const [c, r] of seedCells) if (walkable(c, r)) corrupt.add(c + ',' + r);
     const [ec, er] = entryCell(entrySide || 's');
     hero.c = ec + 0.5; hero.r = er + 0.5;
   }
@@ -175,8 +168,6 @@ export function createDungeonScene(canvas, { reducedMotion } = {}) {
               if (e.hp <= 0) e.dying = 0.45;
             }
           }
-          // la dague purifie aussi la corruption autour du point de frappe
-          for (const key of [...corrupt]) { const [a, b] = key.split(',').map(Number); if (Math.hypot(a + 0.5 - hx, b + 0.5 - hy) < 1.5) corrupt.delete(key); }
         }
       }
 
@@ -227,21 +218,6 @@ export function createDungeonScene(canvas, { reducedMotion } = {}) {
       }
       for (let i = enemies.length - 1; i >= 0; i--) if (enemies[i].dying !== 0 && enemies[i].dying <= 0) enemies.splice(i, 1);
 
-      // ---- corruption : se propage lentement (creep) ----
-      corruptT += dt;
-      if (!busy && corruptT > 1.5 && corrupt.size > 0 && corrupt.size < 42) {
-        corruptT = 0;
-        const arr = [...corrupt];
-        const [cc, cr] = arr[Math.floor(Math.random() * arr.length)].split(',').map(Number);
-        const nb = [[cc + 1, cr], [cc - 1, cr], [cc, cr + 1], [cc, cr - 1]].filter(([a, b]) => walkable(a, b) && !corrupt.has(a + ',' + b));
-        if (nb.length) { const [a, b] = nb[Math.floor(Math.random() * nb.length)]; corrupt.add(a + ',' + b); }
-      }
-      // la corruption ronge le prêtre qui s'y attarde
-      if (!busy && corrupt.has(Math.floor(hero.c) + ',' + Math.floor(hero.r))) {
-        heroCorruptT += dt;
-        if (heroCorruptT > 2 && hero.invuln <= 0) { hero.hp -= 1; heroCorruptT = 0; hero.invuln = 0.8; if (hero.hp <= 0) hero.dead = 1.1; }
-      } else heroCorruptT = Math.max(0, heroCorruptT - dt * 2);
-
       // ---- mort du héros → reset de la salle ----
       if (hero.dead > 0) { hero.dead -= dt; if (hero.dead <= 0) { const rc = curRoom; loadRoom(rc, null); hero.c = midC + 0.5; hero.r = midR + 0.5; hero.hp = 3; hero.invuln = 1.2; } }
 
@@ -255,19 +231,6 @@ export function createDungeonScene(canvas, { reducedMotion } = {}) {
       // grade « dark fantasy » : assombrit + teinte prune le sol (multiply)
       ctx.save(); ctx.globalCompositeOperation = 'multiply';
       ctx.fillStyle = '#4a3a55'; ctx.fillRect(ox, oy, COLS * Z, ROWS * Z);
-      ctx.restore();
-
-      // corruption : taches sombres purple + veines (par-dessus le sol assombri)
-      for (const key of corrupt) { const [c, r] = key.split(',').map(Number); const x = ox + c * Z, y = oy + r * Z;
-        ctx.fillStyle = 'rgba(46,10,66,0.62)'; ctx.fillRect(x, y, Z, Z);
-      }
-      ctx.save(); ctx.globalCompositeOperation = 'lighter';
-      for (const key of corrupt) { const [c, r] = key.split(',').map(Number); const cx = ox + (c + 0.5) * Z, cy = oy + (r + 0.5) * Z;
-        const pulse = 0.4 + 0.35 * Math.sin(now / 320 + c * 1.3 + r);
-        const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, Z * 0.85);
-        g.addColorStop(0, `rgba(178,64,232,${0.42 * pulse})`); g.addColorStop(0.6, `rgba(120,30,200,${0.14 * pulse})`); g.addColorStop(1, 'rgba(120,30,200,0)');
-        ctx.fillStyle = g; ctx.fillRect(cx - Z, cy - Z, Z * 2, Z * 2);
-      }
       ctx.restore();
 
       // persos triés par profondeur (r)
@@ -287,13 +250,20 @@ export function createDungeonScene(canvas, { reducedMotion } = {}) {
         }
       }
 
-      // slash de la dague (devant le héros pendant l'attaque)
-      if (hero.atk > 0.12) {
-        const hx = ox + (hero.c + hero.fx * 0.75) * Z, hy = oy + (hero.r + hero.fy * 0.75 + 0.1) * Z;
-        const ang = Math.atan2(hero.fy, hero.fx), sweep = (1 - hero.atk / 0.32);
-        ctx.save(); ctx.translate(hx, hy); ctx.rotate(ang + (sweep - 0.5) * 1.4);
-        ctx.strokeStyle = `rgba(210,180,255,${0.9 * (1 - sweep)})`; ctx.lineWidth = Z * 0.14; ctx.lineCap = 'round';
-        ctx.beginPath(); ctx.arc(0, 0, Z * 0.7, -0.9, 0.9); ctx.stroke(); ctx.restore();
+      // coup de dague : croissant d'acier balayé devant le héros
+      if (hero.atk > 0) {
+        const prog = 1 - hero.atk / 0.32;               // 0 → 1
+        const alpha = Math.sin(prog * Math.PI);          // apparaît puis s'efface
+        const hx = ox + (hero.c + hero.fx * 0.5) * Z, hy = oy + (hero.r + hero.fy * 0.5) * Z - Z * 0.35;
+        const base = Math.atan2(hero.fy, hero.fx || (hero.flip ? 0.001 : -0.001));
+        const a = base + (prog - 0.5) * 2.0;             // balaye l'arc
+        const R = Z * 0.9;
+        ctx.save(); ctx.translate(hx, hy); ctx.lineCap = 'round'; ctx.globalCompositeOperation = 'lighter';
+        ctx.strokeStyle = `rgba(150,190,255,${0.4 * alpha})`; ctx.lineWidth = Z * 0.36;
+        ctx.beginPath(); ctx.arc(0, 0, R, a - 0.42, a + 0.42); ctx.stroke();
+        ctx.strokeStyle = `rgba(255,255,255,${0.95 * alpha})`; ctx.lineWidth = Z * 0.13;
+        ctx.beginPath(); ctx.arc(0, 0, R, a - 0.5, a + 0.5); ctx.stroke();
+        ctx.restore();
       }
 
       // ---- lumière brasiers + vignette ----

@@ -40,6 +40,10 @@ export function initCursor() {
   };
   bindHovers();
 
+  // À la navigation (ex. clic « ← Retour »), l'élément survolé disparaît sans
+  // déclencher mouseleave → l'anneau restait bloqué en « gros/RETOUR ». On réinitialise.
+  window.addEventListener('hashchange', () => ring.classList.remove('big', 'grabbing'));
+
   return {
     // Rebinder après un rendu dynamique (ex: liste projets injectée)
     refresh: bindHovers,

@@ -13,7 +13,7 @@ mat2 rot(float a){float c=cos(a),s=sin(a);return mat2(c,-s,s,c);}
 float smin(float a,float b,float k){float h=clamp(.5+.5*(b-a)/k,0.,1.);return mix(b,a,h)-k*h*(1.-h);}
 float map(vec3 p){
   vec3 q=p; q.xy*=rot(uRot.x); q.yz*=rot(uRot.y);
-  float t=uTime*.6; float infl=uPulse*.30; float d=1e5;
+  float t=uTime*.6; float infl=uPulse*.42; float d=1e5;
   for(int i=0;i<6;i++){float fi=float(i);
     vec3 o=vec3(sin(t+fi*1.7)*.85, cos(t*.9+fi*2.1)*.8, sin(t*1.1+fi*.8)*.7);
     d=smin(d,length(q-o)-(.52+infl),.55);}
@@ -37,10 +37,9 @@ void main(){
     vec3 n=nrm(p), v=-rd;
     float fres=pow(1.-max(dot(n,v),0.),2.6);
     float diff=max(dot(n,normalize(vec3(.7,.9,.5))),0.);
-    vec3 base=pal(dot(reflect(-v,n),vec3(0.,1.,0.))*.35 + uTime*.04 + p.y*.12 + uPulse*.4);
+    vec3 base=pal(dot(reflect(-v,n),vec3(0.,1.,0.))*.35 + uTime*.04 + p.y*.12);
     col=base*(.28+.72*diff)+fres*pal(uTime*.08+.55)*1.25;
     col+=pow(diff,20.)*.7;
-    col+=uPulse*pal(uTime*.1+.2)*.5;
   }
   col*=1.-.28*length(uv);
   col=pow(max(col,0.),vec3(.86));
@@ -131,7 +130,8 @@ export function initLiquid(canvas, { reducedMotion = false, onGrabStart, onGrabE
     grab += ((down ? 1 : 0) - grab) * 0.12;
     ccx += (tcx - ccx) * 0.12; ccy += (tcy - ccy) * 0.12;
     const dt = time - clickT;
-    const pulse = dt < 1.4 ? Math.exp(-4.5 * dt) * Math.cos(dt * 9.0) : 0;
+    // clic → la matière gonfle puis revient (swell lisse, sans oscillation/flash)
+    const pulse = dt >= 0 && dt < 1.0 ? Math.sin(dt * Math.PI) : 0;
     gl.uniform2f(uRes, canvas.width, canvas.height);
     gl.uniform1f(uTime, reducedMotion ? 2.0 : time);
     gl.uniform2f(uRot, rotx, roty);

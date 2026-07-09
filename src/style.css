@@ -117,6 +117,21 @@ body{background:var(--bg);color:var(--ink);font-family:var(--sans);overflow-x:hi
   display:flex;justify-content:space-between;flex-wrap:wrap;gap:18px;pointer-events:auto}
 .foot a{color:var(--ink);text-decoration:none;border-bottom:1px solid var(--line)}
 
+/* ---------- contact ---------- */
+.contact{position:relative;z-index:10;background:var(--bg);pointer-events:auto;
+  display:flex;flex-direction:column;align-items:center;text-align:center;gap:20px;padding:90px 30px 40px}
+.contact-eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.24em;text-transform:uppercase;color:var(--dim)}
+.contact-btn{display:inline-flex;align-items:center;gap:12px;pointer-events:auto;text-decoration:none;
+  font-family:var(--sans);font-weight:700;font-size:clamp(18px,3.4vw,30px);letter-spacing:-.01em;
+  color:var(--bg);background:var(--coral);padding:.62em 1.1em;border-radius:100px;
+  box-shadow:0 10px 40px -12px var(--coral);transition:transform .25s cubic-bezier(.2,.8,.2,1),box-shadow .25s,background .25s}
+.contact-btn:hover{transform:translateY(-3px) scale(1.02);background:#ff738a;box-shadow:0 18px 55px -12px var(--coral)}
+.contact-btn-ico{font-size:.9em;transform:translateY(1px)}
+.contact-mail{font-family:var(--mono);font-size:13px;letter-spacing:.12em;color:var(--dim);text-decoration:none;
+  border-bottom:1px solid var(--line);pointer-events:auto;transition:color .2s,border-color .2s}
+.contact-mail:hover{color:var(--mint);border-color:var(--mint)}
+.foot{justify-content:center}
+
 /* ---------- page projet plein écran ---------- */
 body.view-project{overflow:hidden}
 .project-view{position:fixed;inset:0;z-index:50;background:var(--bg);overflow-y:auto;overflow-x:hidden;

@@ -73,6 +73,8 @@ function applyLanding() {
   set('nav-works', t('nav_works'));
   set('nav-contact', t('nav_contact'));
   set('works-eyebrow', t('works_eyebrow'));
+  set('contact-eyebrow', t('contact_eyebrow'));
+  set('contact-btn-lbl', t('contact_btn'));
   set('footer-copy', t('footer_copy'));
   const tag = document.getElementById('tagline');
   if (tag) tag.innerHTML = t('hero_tagline');

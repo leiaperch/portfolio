@@ -7,6 +7,8 @@ const dict = {
     nav_role: 'Développeuse créative',
     nav_works: 'Travaux',
     nav_contact: 'Contact',
+    contact_eyebrow: 'Un projet, une envie de collaborer ?',
+    contact_btn: 'M’envoyer un email',
     hero_tagline:
       "Jeune <b>passionnée de l'image</b>, je touche à tous les domaines mêlant <b>code et créativité</b> dans le but de donner vie à mes projets.",
     roles: ['Dev Web', 'Game Designer', 'Unity Programmer', 'Worldbuilder'],
@@ -38,6 +40,8 @@ const dict = {
     nav_role: 'Creative Developer',
     nav_works: 'Work',
     nav_contact: 'Contact',
+    contact_eyebrow: 'A project, want to collaborate?',
+    contact_btn: 'Email me',
     hero_tagline:
       "A young <b>image enthusiast</b>, I work across every field where <b>code meets creativity</b> to bring my projects to life.",
     roles: ['Web Dev', 'Game Designer', 'Unity Programmer', 'Worldbuilder'],

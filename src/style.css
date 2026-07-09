@@ -204,6 +204,14 @@ body.view-project{overflow:hidden}
 .pv-thumb img{width:100%;height:100%;object-fit:cover;display:block}
 .pv-thumb:hover{opacity:.85;transform:translateY(-2px)}
 .pv-thumb.active{opacity:1;border-color:var(--coral)}
+/* aperçu vidéo (expérience Aero) */
+.pv-feature-video{aspect-ratio:auto}
+.pv-feature-video::after{display:none}
+.pv-feature-vid{width:100%;height:auto;display:block;background:#0b0d14}
+.pv-media-cap{font-size:13.5px;line-height:1.55;color:var(--dim);margin:0;max-width:60ch}
+.pv-stills{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+.pv-still{margin:0;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:#0b0d14}
+.pv-still img{width:100%;display:block}
 
 .pv-foot{border-top:1px solid var(--line);margin-top:40px}
 .pv-next{display:flex;flex-direction:column;gap:8px;padding:60px 30px;text-decoration:none;text-align:right;

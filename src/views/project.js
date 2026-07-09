@@ -98,7 +98,19 @@ export function renderProject(id, { onCursorRefresh } = {}) {
       : '';
 
     const gw = q('.pv-gallery-wrap');
-    if (p.gallery?.length) {
+    if (p.video) {
+      const stills = (p.gallery || [])
+        .map((src) => `<figure class="pv-still"><img src="${src}" alt="" loading="lazy" /></figure>`)
+        .join('');
+      gw.innerHTML = `<h3 class="pv-sec-h">${t('pv_gallery')}</h3>
+        <div class="pv-gallery pv-gallery-media">
+          <figure class="pv-feature pv-feature-video">
+            <video class="pv-feature-vid" src="${p.video}" ${p.poster ? `poster="${p.poster}"` : ''} muted loop autoplay playsinline preload="metadata" controls></video>
+          </figure>
+          ${p.mediaCaption ? `<figcaption class="pv-media-cap">${tv(p.mediaCaption)}</figcaption>` : ''}
+          ${stills ? `<div class="pv-stills">${stills}</div>` : ''}
+        </div>`;
+    } else if (p.gallery?.length) {
       const thumbs = p.gallery
         .map((src, i) => `<button class="pv-thumb${i === 0 ? ' active' : ''}" data-thumb="${src}" aria-label="Aperçu ${i + 1}"><img src="${src}" alt="" loading="lazy" /></button>`)
         .join('');

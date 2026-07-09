@@ -197,7 +197,13 @@ export const projects = [
         'The gallery above replays the exhibition in 3D: walk freely (WASD + mouse) among my pieces — the park scan and the modelled elements (a character, a bicycle, birds, a choco frito…).',
       ],
     },
+    video: 'videos/mercado-aero.mp4',
+    poster: 'images/internship/mercado-aero.jpg',
+    mediaCaption: {
+      fr: "Expérience Adobe Aero « Mercado » : le panneau d'azulejos du Mercado do Livramento, animé et posé en réalité augmentée sur le mur.",
+      en: 'Adobe Aero experience “Mercado”: the Mercado do Livramento azulejo panel, animated and placed in augmented reality on the wall.',
+    },
     cover: null,
-    gallery: [],
+    gallery: ['images/internship/mercado-base.jpg'],
   },
 ];

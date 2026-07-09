@@ -60,7 +60,7 @@ export function createIsoScene(canvas, { reducedMotion } = {}) {
   const chest = { c: 5, r: 2 };
 
   // pièces à ramasser (sur l'herbe/le pont), réapparaissent après collecte
-  const coins = [[1, 3], [5, 6], [6, 4], [2, 0], [0, 5], [6, 1], [3, 0]]
+  const coins = [[5, 6], [2, 0], [0, 5]]
     .map(([c, r]) => ({ c, r, alive: true, t: Math.random() * 6, rt: 0 }));
   let gold = 0, goldPop = 0;
   const fx = [];        // explosions {c,r,t}

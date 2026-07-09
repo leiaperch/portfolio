@@ -29,24 +29,30 @@ export function createIsoScene(canvas, { reducedMotion } = {}) {
 
   // ---- carte : arène GRID×GRID, quelques tuiles décorées + accès ----
   const GRID = 7;
+  // plateau varié mais stable (RNG déterministe pondéré)
+  let seed = 20230526;
+  const rnd = () => { seed = (seed * 1103515245 + 12345) & 0x7fffffff; return seed / 0x7fffffff; };
+  const pick = (weights) => {
+    let x = rnd(), acc = 0;
+    for (const [k, w] of weights) { acc += w; if (x <= acc) return k; }
+    return weights[0][0];
+  };
   const map = [];
   for (let r = 0; r < GRID; r++) {
     const row = [];
     for (let c = 0; c < GRID; c++) {
       const edge = r === 0 || c === 0 || r === GRID - 1 || c === GRID - 1;
-      let t = 'tile';
-      if (edge && (r + c) % 2 === 0) t = 'tile_crumbled';
-      else if ((r === 3 && c === 3)) t = 'tile_deco';
-      else if ((r + c) % 5 === 0) t = 'tile_deco';
-      row.push(t);
+      row.push(edge
+        ? pick([['tile_crumbled', 0.55], ['tile', 0.3], ['tile_steps', 0.15]])
+        : pick([['tile', 0.5], ['tile_deco', 0.24], ['tile_steps', 0.14], ['tile_crumbled', 0.12]]));
     }
     map.push(row);
   }
 
   // ---- entités ----
   const hero = { c: 3, r: 3, face: 'front', moving: false, anim: 0, bob: 0 };
-  const grog = { c: 1.4, r: 5, t: 0, baseC: 1.4, baseR: 5 };
-  const chest = { c: 5, r: 1 };
+  const grog = { c: 1.5, r: 5, t: 0, baseC: 1.5, baseR: 5, flip: false };
+  const chest = { c: 5, r: 1.5 };
 
   const imgs = {};
   let ready = false;
@@ -145,7 +151,11 @@ export function createIsoScene(canvas, { reducedMotion } = {}) {
       }
       hero.bob = hero.moving ? Math.sin(now / 90) * 2 : Math.sin(now / 500) * 1.2;
       grog.t += dt;
-      grog.c = grog.baseC + Math.sin(grog.t * 0.8) * 0.5; // petit va-et-vient
+      // patrouille horizontale à l'écran (c et r opposés) + regarde le sens de marche
+      const gs = Math.sin(grog.t * 0.8) * 0.9;
+      grog.c = grog.baseC + gs;
+      grog.r = grog.baseR - gs;
+      grog.flip = Math.cos(grog.t * 0.8) > 0;
 
       // --- rendu ---
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
@@ -174,7 +184,7 @@ export function createIsoScene(canvas, { reducedMotion } = {}) {
         const p = iso(e.c, e.r);
         const footY = p.y + TW / 8;
         if (e.kind === 'chest') drawSprite(imgs.coffre, p.x, footY, charScale * 0.8, false);
-        else if (e.kind === 'grog') drawSprite(imgs.grog, p.x, footY + Math.sin(grog.t * 3) * 1.5, charScale * 0.9, false);
+        else if (e.kind === 'grog') drawSprite(imgs.grog, p.x, footY + Math.sin(grog.t * 3) * 1.5, charScale * 0.9, grog.flip);
         else {
           const { img, flip } = facingSprite();
           drawSprite(img, p.x, footY + hero.bob, charScale, flip);

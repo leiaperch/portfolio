@@ -546,15 +546,7 @@ export function createProjectScene(canvas, opts = {}) {
     for (let i = 0; i < 460; i++) {
       wrap(Math.random() * 2048, 110 + Math.random() * 804, pal[i % pal.length], 18 + Math.random() * 95, 0.22 + Math.random() * 0.4);
     }
-    // soleil (halo + cœur)
-    const sunX = 1520, sunY = 330;
-    const sunGrad = x.createRadialGradient(sunX, sunY, 0, sunX, sunY, 380);
-    sunGrad.addColorStop(0, '#fff8ecff'); sunGrad.addColorStop(0.06, '#ffe9b4ff');
-    sunGrad.addColorStop(0.18, '#ffd487aa'); sunGrad.addColorStop(0.5, '#ffcf7033'); sunGrad.addColorStop(1, '#ffcf7000');
-    x.fillStyle = sunGrad; x.beginPath(); x.arc(sunX, sunY, 380, 0, 7); x.fill();
     x.globalCompositeOperation = 'source-over';
-    x.globalAlpha = 0.5; x.fillStyle = '#fff1cf'; x.beginPath(); x.arc(sunX, sunY, 76, 0, 7); x.fill();
-    x.globalAlpha = 1; x.fillStyle = '#fffdf7'; x.beginPath(); x.arc(sunX, sunY, 56, 0, 7); x.fill();
     // étoiles
     for (let i = 0; i < 1700; i++) {
       const sx = Math.random() * 2048, sy = Math.random() * 1024, t = Math.random();
@@ -568,11 +560,6 @@ export function createProjectScene(canvas, opts = {}) {
     scene.background = spaceTex;
     scene.environment = pmrem.fromEquirectangular(spaceTex).texture;
 
-    // lumière du soleil (aligné env. sur le disque)
-    const lon = (sunX / 2048) * Math.PI * 2, lat = (0.5 - sunY / 1024) * Math.PI;
-    const sunLight = new THREE.DirectionalLight(0xfff0d8, 2.4);
-    sunLight.position.set(Math.cos(lat) * Math.cos(lon), Math.sin(lat), Math.cos(lat) * Math.sin(lon)).multiplyScalar(60);
-    scene.add(sunLight);
 
     // champ d'étoiles 3D (parallaxe quand on orbite)
     const NS = 2200, sp = new Float32Array(NS * 3), sc = new Float32Array(NS * 3);
@@ -620,8 +607,8 @@ export function createProjectScene(canvas, opts = {}) {
                 m.metalness = 0; m.roughness = 0.05; m.envMapIntensity = 2.2;
                 if (m.transmission !== undefined) m.transmission = Math.max(m.transmission, 0.85);
               } else {
-                m.metalness = 0.9; m.roughness = 0.48; m.envMapIntensity = 1.5; // métal brossé (pas miroir)
-                if (m.color && m.color.r + m.color.g + m.color.b < 0.25) m.color.setHex(0x7e8492);
+                m.metalness = 1; m.roughness = 0.32; m.envMapIntensity = 1.9;
+                if (m.color && m.color.r + m.color.g + m.color.b < 0.2) m.color.setHex(0x8a8f9c);
               }
               m.needsUpdate = true;
             });

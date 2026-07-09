@@ -5,6 +5,7 @@
 import { projects } from '../data/projects.js';
 import { createProjectScene } from '../project-scene.js';
 import { createIsoScene } from '../iso-scene.js';
+import { createDungeonScene } from '../dungeon-scene.js';
 import { t, tv, getLang, toggleLang, onLang } from '../i18n.js';
 
 const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -21,11 +22,12 @@ export function renderProject(id, { onCursorRefresh } = {}) {
   const next = projects[(idx + 1) % projects.length];
   const isExplore = p.mode === 'explore';
   const isIso = p.mode === 'iso';
+  const isDungeon = p.mode === 'dungeon';
   const is3D = p.mode === 'orbit' || p.mode === 'explore';
-  const hasCanvas = is3D || isIso;
+  const hasCanvas = is3D || isIso || isDungeon;
   const isEmbed = p.mode === 'embed';
 
-  const overlay = (isExplore || isIso)
+  const overlay = (isExplore || isIso || isDungeon)
     ? `<div class="pv-scene-hint"><span class="pv-scene-verb"></span><span class="pv-scene-keys"></span></div>`
     : is3D
       ? `<div class="pv-hint"></div>`
@@ -49,7 +51,7 @@ export function renderProject(id, { onCursorRefresh } = {}) {
       </div>
     </header>
 
-    <section class="pv-hero ${isExplore || isIso ? 'is-explore' : ''} ${isIso ? 'is-iso' : ''} ${hasCanvas ? '' : 'is-cover'}">
+    <section class="pv-hero ${isExplore || isIso || isDungeon ? 'is-explore' : ''} ${isIso || isDungeon ? 'is-iso' : ''} ${hasCanvas ? '' : 'is-cover'}">
       ${hasCanvas ? '<canvas class="pv-canvas"></canvas>' : `<div class="pv-hero-cover"><img src="${p.cover}" alt="${p.title}" /></div>`}
       <div class="pv-hero-txt">
         <div class="pv-num">${num} / ${String(projects.length).padStart(2, '0')}</div>
@@ -129,9 +131,10 @@ export function renderProject(id, { onCursorRefresh } = {}) {
       gw.innerHTML = '';
     }
 
-    if (isExplore || isIso) {
-      q('.pv-scene-verb').textContent = t(isIso ? 'pv_iso_verb' : 'pv_explore_verb');
-      q('.pv-scene-keys').textContent = t(isIso ? 'pv_iso_keys' : 'pv_explore_keys');
+    if (isExplore || isIso || isDungeon) {
+      const pfx = isDungeon ? 'pv_dungeon' : isIso ? 'pv_iso' : 'pv_explore';
+      q('.pv-scene-verb').textContent = t(pfx + '_verb');
+      q('.pv-scene-keys').textContent = t(pfx + '_keys');
     } else if (is3D) {
       q('.pv-hint').textContent = t('pv_orbit_hint');
     }
@@ -162,7 +165,9 @@ export function renderProject(id, { onCursorRefresh } = {}) {
 
   let exploring = false;
   let scene = null;
-  if (isIso) {
+  if (isDungeon) {
+    scene = createDungeonScene(view.querySelector('.pv-canvas'), { reducedMotion });
+  } else if (isIso) {
     scene = createIsoScene(view.querySelector('.pv-canvas'), { reducedMotion });
   } else if (is3D) {
     scene = createProjectScene(view.querySelector('.pv-canvas'), {

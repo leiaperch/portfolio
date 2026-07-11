@@ -276,7 +276,13 @@ export const projects = [
         'A three-layer architecture with no circular dependency (pure data → per-frame budgeted instantiation → chunk streaming with pooling and per-district lights). Fully raster night rendering in HDRP (SSR, SSAO, volumetric fog, no ray tracing). The visuals rely on Hivemind’s Cyberpunk City pack; all the procedural generation, streaming and pipeline are my work (Unity 6, C#, ~33 tests).',
       ],
     },
-    cover: 'images/neocity/gen-cities.webp',
+    video: 'videos/neocity.mp4',
+    poster: 'images/neocity/cover.webp',
+    mediaCaption: {
+      fr: 'Survol de la ville cyberpunk générée procéduralement, rendue de nuit en HDRP (raster) sous Unity 6.',
+      en: 'Flythrough of the procedurally generated cyberpunk city, rendered at night in HDRP (raster) in Unity 6.',
+    },
+    cover: 'images/neocity/cover.webp',
     gallery: [
       'images/neocity/gen-cities.webp',
       'images/neocity/gen-blocks.webp',

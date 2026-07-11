@@ -284,6 +284,7 @@ export const projects = [
     },
     cover: 'images/neocity/cover.webp',
     gallery: [
+      'images/neocity/aerial.webp',
       'images/neocity/gen-cities.webp',
       'images/neocity/gen-blocks.webp',
     ],

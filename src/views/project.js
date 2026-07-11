@@ -158,12 +158,25 @@ export function renderProject(id, { onCursorRefresh } = {}) {
   const offLang = onLang(updateTexts);
   r.lang.addEventListener('click', toggleLang);
 
-  // galerie : clic sur une vignette → change l'image principale (délégation)
+  // lightbox : agrandit une image d'aperçu en plein écran
+  const lightImg = el('img', { class: 'pv-lightbox-img', alt: '' });
+  const lightbox = el('div', { class: 'pv-lightbox', 'aria-hidden': 'true' }, lightImg);
+  view.append(lightbox);
+  const openLightbox = (src) => { lightImg.src = src; lightbox.classList.add('open'); };
+  const closeLightbox = () => lightbox.classList.remove('open');
+  lightbox.addEventListener('click', closeLightbox);
+  const onKey = (e) => { if (e.key === 'Escape') closeLightbox(); };
+  window.addEventListener('keydown', onKey);
+
   view.addEventListener('click', (e) => {
+    // agrandir une image cliquée (still d'aperçu ou image principale de galerie)
+    const zoom = e.target.closest('.pv-still img, .pv-feature-img');
+    if (zoom) { openLightbox(zoom.currentSrc || zoom.src); return; }
+    // galerie image : clic sur une vignette → change l'image principale
     const thumb = e.target.closest('.pv-thumb');
-    if (!thumb) return;
+    if (!thumb || !thumb.dataset.thumb) return;
     const main = view.querySelector('.pv-feature-img');
-    if (!main || !thumb.dataset.thumb) return;
+    if (!main) return;
     main.style.opacity = '0';
     const swap = () => { main.src = thumb.dataset.thumb; main.style.opacity = '1'; main.removeEventListener('transitionend', swap); };
     main.addEventListener('transitionend', swap);
@@ -201,6 +214,7 @@ export function renderProject(id, { onCursorRefresh } = {}) {
   return {
     dispose() {
       offLang();
+      window.removeEventListener('keydown', onKey);
       scene?.dispose();
       view.remove();
     },

@@ -228,6 +228,15 @@ body.view-project{overflow:hidden}
 .pv-still{margin:0;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:#0b0d14}
 .pv-still img{width:100%;display:block}
 
+/* agrandissement des images d'aperçu (lightbox) */
+.pv-still img,.pv-feature-img{cursor:zoom-in}
+.pv-lightbox{position:fixed;inset:0;z-index:80;display:none;align-items:center;justify-content:center;
+  background:rgba(3,4,8,.93);cursor:zoom-out;padding:4vmin}
+.pv-lightbox.open{display:flex}
+.pv-lightbox-img{max-width:94vw;max-height:92vh;object-fit:contain;border-radius:8px;
+  box-shadow:0 30px 90px -20px rgba(0,0,0,.85);animation:pvZoom .22s cubic-bezier(.2,.8,.2,1)}
+@keyframes pvZoom{from{opacity:0;transform:scale(.94)}to{opacity:1;transform:none}}
+
 .pv-foot{border-top:1px solid var(--line);margin-top:40px}
 .pv-next{display:flex;flex-direction:column;gap:8px;padding:60px 30px;text-decoration:none;text-align:right;
   align-items:flex-end;transition:padding-right .5s cubic-bezier(.2,.8,.2,1)}

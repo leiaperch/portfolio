@@ -251,4 +251,35 @@ export const projects = [
       'images/fyp/spell-icons.webp',
     ],
   },
+  {
+    id: 'neocity',
+    title: 'NeoCity',
+    realm: 'I',
+    type: { fr: 'Ville procédurale · Cyberpunk', en: 'Procedural city · Cyberpunk' },
+    tech: ['Unity 6', 'HDRP', 'C#', 'Procédural'],
+    year: '2026',
+    mode: 'cover',
+    scene: null,
+    embed: null,
+    status: { fr: 'Démo PC · Génération procédurale', en: 'PC demo · Procedural generation' },
+    summary: {
+      fr: 'Ville cyberpunk procédurale et déterministe, explorable à pied et rendue de nuit en HDRP (Unity 6). Une simple seed suffit à générer une ville dense, streamée par chunks et régénérable à chaud.',
+      en: 'A deterministic procedural cyberpunk city, walkable and rendered at night in HDRP (Unity 6). A single seed is enough to generate a dense city, streamed by chunks and hot-regeneratable.',
+    },
+    about: {
+      fr: [
+        'NeoCity génère une ville cyberpunk entièrement par code : à partir d’une seed entière, un générateur déterministe trace un réseau de rues, découpe des îlots et des quartiers, place bâtiments, enseignes et props par bounds mesurées (jamais les pivots), puis valide la ville — le tout régénérable à chaud depuis un simple HUD.',
+        'Architecture en trois couches sans dépendance circulaire (données pures → instanciation budgétée par frame → streaming par chunks avec pooling et lumières par quartier). Rendu nocturne 100 % raster sous HDRP (SSR, SSAO, brouillard volumétrique, sans ray tracing). Les visuels s’appuient sur le pack Cyberpunk City de Hivemind ; toute la génération procédurale, le streaming et le pipeline sont mon travail (Unity 6, C#, ~33 tests).',
+      ],
+      en: [
+        'NeoCity generates a cyberpunk city entirely by code: from an integer seed, a deterministic generator lays out a road network, carves blocks and districts, places buildings, signs and props by measured bounds (never the prefab pivots), then validates the city — all hot-regeneratable from a simple HUD.',
+        'A three-layer architecture with no circular dependency (pure data → per-frame budgeted instantiation → chunk streaming with pooling and per-district lights). Fully raster night rendering in HDRP (SSR, SSAO, volumetric fog, no ray tracing). The visuals rely on Hivemind’s Cyberpunk City pack; all the procedural generation, streaming and pipeline are my work (Unity 6, C#, ~33 tests).',
+      ],
+    },
+    cover: 'images/neocity/gen-cities.webp',
+    gallery: [
+      'images/neocity/gen-cities.webp',
+      'images/neocity/gen-blocks.webp',
+    ],
+  },
 ];

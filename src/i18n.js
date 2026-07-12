@@ -4,7 +4,6 @@
 
 const dict = {
   fr: {
-    nav_role: 'Développeuse créative',
     nav_works: 'Travaux',
     nav_contact: 'Contact',
     contact_eyebrow: 'Un projet, une envie de collaborer ?',
@@ -37,7 +36,6 @@ const dict = {
     cur_next: 'SUIVANT',
   },
   en: {
-    nav_role: 'Creative Developer',
     nav_works: 'Work',
     nav_contact: 'Contact',
     contact_eyebrow: 'A project, want to collaborate?',

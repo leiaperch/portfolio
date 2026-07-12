@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <rect width="100" height="100" rx="22" fill="#05060a"/>
+  <text x="46" y="52" font-family="'Helvetica Neue', Arial, sans-serif" font-size="54" font-weight="800" fill="#ff5d73" text-anchor="middle" dominant-baseline="central" letter-spacing="-3">LP</text>
+  <circle cx="82" cy="24" r="7" fill="#6ff2c9"/>
+</svg>

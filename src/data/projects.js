@@ -297,6 +297,7 @@ export const projects = [
     tech: ['WebGL', 'GLSL', 'Three.js', 'JavaScript'],
     year: '2026',
     mode: 'embed',
+    heroShader: 'galaxy',
     scene: null,
     embed: 'https://leiaperch.github.io/magnitude/',
     status: { fr: 'Jouable en ligne', en: 'Playable online' },
@@ -316,6 +317,7 @@ export const projects = [
     },
     cover: 'images/magnitude/cover.jpg',
     gallery: [
+      'images/magnitude/galaxy.jpg',
       'images/magnitude/planet.jpg',
       'images/magnitude/solar.jpg',
       'images/magnitude/deep.jpg',

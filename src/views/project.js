@@ -7,6 +7,7 @@ import { projects } from '../data/projects.js';
 import { createProjectScene } from '../project-scene.js';
 import { createIsoScene } from '../iso-scene.js';
 import { createDungeonScene } from '../dungeon-scene.js';
+import { createGalaxyScene } from '../galaxy-scene.js';
 import { t, tv, getLang, toggleLang, onLang } from '../i18n.js';
 import { el, clear } from '../dom.js';
 
@@ -51,9 +52,13 @@ export function renderProject(id, { onCursorRefresh } = {}) {
     overlay = el('a', { class: 'pv-play', href: p.play, target: '_blank', rel: 'noopener', dataset: { cursor: 'JOUER' } }, r.playLbl);
   }
 
+  const hasShaderHero = isEmbed && p.heroShader === 'galaxy';
   const heroMedia = hasCanvas
     ? el('canvas', { class: 'pv-canvas' })
-    : el('div', { class: 'pv-hero-cover' }, el('img', { src: p.cover, alt: p.title }));
+    : el('div', { class: 'pv-hero-cover' + (hasShaderHero ? ' is-shader' : '') },
+        hasShaderHero
+          ? el('canvas', { class: 'pv-shader-canvas', dataset: { cursor: 'TOURNER' } })
+          : el('img', { src: p.cover, alt: p.title }));
 
   r.back = el('a', { class: 'pv-back', href: '#/', dataset: { cursor: '' } });
   r.lang = el('button', { class: 'lang', dataset: { lang: getLang() }, 'aria-label': 'Changer de langue' },
@@ -202,10 +207,18 @@ export function renderProject(id, { onCursorRefresh } = {}) {
     if (isExplore) canvas()?.addEventListener('click', () => { if (!exploring) scene.lock?.(); });
   }
 
+  // hero « shader galaxie » manipulable (mode embed) — se remplace par l'iframe au clic Jouer
+  let heroScene = null;
+  if (hasShaderHero) {
+    const sc = view.querySelector('.pv-shader-canvas');
+    if (sc) heroScene = createGalaxyScene(sc, { reducedMotion });
+  }
+
   // jeu web déployé : clic « Jouer » → charge l'iframe jouable en place
   r.embedBtn?.addEventListener('click', () => {
     const cover = view.querySelector('.pv-hero-cover');
     if (!cover) return;
+    heroScene?.dispose(); heroScene = null;
     const frame = el('iframe', { class: 'pv-embed-frame', src: p.embed, allow: 'fullscreen; autoplay', title: p.title });
     cover.replaceWith(frame);
     view.classList.add('playing');
@@ -216,6 +229,7 @@ export function renderProject(id, { onCursorRefresh } = {}) {
       offLang();
       window.removeEventListener('keydown', onKey);
       scene?.dispose();
+      heroScene?.dispose();
       view.remove();
     },
   };

@@ -289,4 +289,32 @@ export const projects = [
       'images/neocity/gen-blocks.webp',
     ],
   },
+  {
+    id: 'magnitude',
+    title: 'Magnitude',
+    realm: 'II',
+    type: { fr: 'Expérience web · WebGL', en: 'Web experience · WebGL' },
+    tech: ['WebGL', 'GLSL', 'Three.js', 'JavaScript'],
+    year: '2026',
+    mode: 'embed',
+    scene: null,
+    embed: 'https://leiaperch.github.io/magnitude/',
+    status: { fr: 'Jouable en ligne', en: 'Playable online' },
+    summary: {
+      fr: 'Expérience web solo « l’univers dans une scrollbar » : on scrolle d’un quark (10⁻¹⁶ m) aux plus grands amas de galaxies (10²⁷ m) à travers 13 scènes en shaders WebGL faits main, avec l’échelle et le temps-lumière en direct.',
+      en: 'A solo web experience — “the universe in a scrollbar”: scroll from a quark (10⁻¹⁶ m) to the largest galaxy clusters (10²⁷ m) through 13 hand-written WebGL shader scenes, with live scale and light-time readouts.',
+    },
+    about: {
+      fr: [
+        'Magnitude est une page unique où l’on traverse toutes les échelles par un zoom continu en shaders : atomes, ADN, cellule, ville en vue satellite, planète, système solaire, galaxie, toile cosmique… ~900 px par puissance de dix, un HUD qui annonce « ce cadre ≈ N × [objet réel] », un mode Voyage en autoscroll et un drone sonore génératif.',
+        'Plusieurs axes à explorer : l’espace (des quarks aux amas de galaxies), le temps (du Big Bang à aujourd’hui — plasma, fond diffus, premières étoiles) et une balade horaire sur une plage. Le tout en WebGL / GLSL écrit à la main (+ Three.js pour un mode « Âges » en 3D qui traverse les siècles), en modules ES, bilingue, déployé sur GitHub Pages.',
+      ],
+      en: [
+        'Magnitude is a single page that crosses every scale through a continuous shader zoom: atoms, DNA, a cell, a city from orbit, a planet, the solar system, a galaxy, the cosmic web… ~900 px per power of ten, a HUD announcing “this frame ≈ N × [real object]”, an autoscroll Voyage mode and a generative sound drone.',
+        'Several axes to explore: space (from quarks to galaxy clusters), time (from the Big Bang to today — plasma, cosmic background, first stars) and an hourly stroll on a beach. All hand-written WebGL / GLSL (+ Three.js for a 3D “Ages” mode crossing the centuries), in ES modules, bilingual, deployed on GitHub Pages.',
+      ],
+    },
+    cover: 'images/magnitude/cover.jpg',
+    gallery: [],
+  },
 ];

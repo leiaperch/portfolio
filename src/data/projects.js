@@ -315,6 +315,10 @@ export const projects = [
       ],
     },
     cover: 'images/magnitude/cover.jpg',
-    gallery: [],
+    gallery: [
+      'images/magnitude/planet.jpg',
+      'images/magnitude/solar.jpg',
+      'images/magnitude/deep.jpg',
+    ],
   },
 ];

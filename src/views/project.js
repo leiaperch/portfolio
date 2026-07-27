@@ -41,12 +41,6 @@ export function renderProject(id, { onCursorRefresh } = {}) {
   } else if (is3D) {
     r.hint = el('div', { class: 'pv-hint' });
     overlay = r.hint;
-  } else if (isEmbed) {
-    r.playLbl = el('span', { class: 'pv-play-lbl' });
-    r.embedBtn = el('button', { class: 'pv-play', dataset: { embed: p.embed, cursor: 'JOUER' } }, r.playLbl);
-    overlay = el('div', { class: 'pv-embed-cta' }, r.embedBtn,
-      el('a', { class: 'pv-fs', href: p.embed, target: '_blank', rel: 'noopener', dataset: { cursor: '' } },
-        '↗ ' + tv({ fr: 'nouvel onglet', en: 'new tab' })));
   } else if (p.play) {
     r.playLbl = el('span', { class: 'pv-play-lbl' });
     overlay = el('a', { class: 'pv-play', href: p.play, target: '_blank', rel: 'noopener', dataset: { cursor: 'JOUER' } }, r.playLbl);
@@ -67,10 +61,10 @@ export function renderProject(id, { onCursorRefresh } = {}) {
   r.type = el('div', { class: 'pv-type' });
   r.summary = el('p', { class: 'pv-summary' });
   r.status = el('div', { class: 'pv-status' });
-  r.linksWrap = el('div', { class: 'pv-links-wrap' });
   r.aboutWrap = el('div', { class: 'pv-about-wrap' });
   r.featWrap = el('div', { class: 'pv-features-wrap' });
   r.galWrap = el('div', { class: 'pv-gallery-wrap' });
+  r.linksWrap = el('div', { class: 'pv-links-wrap' });
   r.nextLbl = el('span', { class: 'pv-next-lbl' });
   r.next = el('a', { class: 'pv-next', href: `#/p/${next.id}`, dataset: { cursor: '' } },
     r.nextLbl, el('span', { class: 'pv-next-name', text: `${next.title} →` }));
@@ -90,7 +84,7 @@ export function renderProject(id, { onCursorRefresh } = {}) {
       ),
       overlay,
     ),
-    el('section', { class: 'pv-body' }, r.summary, r.status, r.linksWrap, r.aboutWrap, r.featWrap, r.galWrap),
+    el('section', { class: 'pv-body' }, r.summary, r.status, r.aboutWrap, r.featWrap, r.galWrap, r.linksWrap),
     el('footer', { class: 'pv-foot' }, r.next),
   );
 
@@ -217,22 +211,12 @@ export function renderProject(id, { onCursorRefresh } = {}) {
     if (isExplore) canvas()?.addEventListener('click', () => { if (!exploring) scene.lock?.(); });
   }
 
-  // hero « shader galaxie » manipulable (mode embed) — se remplace par l'iframe au clic Jouer
+  // hero « shader galaxie » manipulable (mode embed) — décoratif, on joue via le lien en bas de page
   let heroScene = null;
   if (hasShaderHero) {
     const sc = view.querySelector('.pv-shader-canvas');
     if (sc) heroScene = createGalaxyScene(sc, { reducedMotion });
   }
-
-  // jeu web déployé : clic « Jouer » → charge l'iframe jouable en place
-  r.embedBtn?.addEventListener('click', () => {
-    const cover = view.querySelector('.pv-hero-cover');
-    if (!cover) return;
-    heroScene?.dispose(); heroScene = null;
-    const frame = el('iframe', { class: 'pv-embed-frame', src: p.embed, allow: 'fullscreen; autoplay', title: p.title });
-    cover.replaceWith(frame);
-    view.classList.add('playing');
-  });
 
   return {
     dispose() {

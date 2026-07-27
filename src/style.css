@@ -173,7 +173,7 @@ body.view-project{overflow:hidden}
 .project-view.exploring .pv-hero-txt{opacity:0;transition:opacity .3s}
 
 /* hero image (projets 2D) + jeu web embarqué */
-.pv-hero-cover, .pv-embed-frame{position:absolute;inset:0;width:100%;height:100%}
+.pv-hero-cover{position:absolute;inset:0;width:100%;height:100%}
 .pv-hero-cover img{width:100%;height:100%;object-fit:cover;display:block}
 /* hero shader galaxie manipulable */
 .pv-hero-cover.is-shader{background:#04040a}
@@ -181,28 +181,20 @@ body.view-project{overflow:hidden}
 .pv-shader-canvas.grabbing{cursor:grabbing}
 .pv-hero.is-cover::after{content:"";position:absolute;inset:0;pointer-events:none;
   background:radial-gradient(120% 100% at 50% 30%,transparent 42%,rgba(3,3,7,.62))}
-.pv-embed-cta{position:absolute;inset:0;z-index:4;display:flex;flex-direction:column;
-  align-items:center;justify-content:center;gap:16px;pointer-events:none}
-.pv-play{font-family:var(--mono);font-size:14px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink);
-  padding:16px 34px;border:1px solid var(--coral);border-radius:3px;background:rgba(255,93,115,.08);cursor:pointer;
-  transition:background .3s,box-shadow .3s;pointer-events:auto;text-decoration:none;display:inline-flex;align-items:center;gap:8px}
+/* CTA « Jouer » externe (mode p.play, hors embed) */
+.pv-play{position:absolute;left:30px;bottom:34px;z-index:4;font-family:var(--mono);font-size:14px;letter-spacing:.18em;
+  text-transform:uppercase;color:var(--ink);padding:16px 34px;border:1px solid var(--coral);border-radius:3px;
+  background:rgba(255,93,115,.08);cursor:pointer;transition:background .3s,box-shadow .3s;
+  text-decoration:none;display:inline-flex;align-items:center;gap:8px}
 .pv-play:hover{background:rgba(255,93,115,.18);box-shadow:0 0 30px rgba(255,93,115,.3)}
-.pv-fs{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);
-  text-decoration:none;pointer-events:auto}
-.pv-fs:hover{color:var(--ink)}
-.pv-embed-frame{border:0;background:#000}
-.project-view.playing .pv-embed-cta,
-.project-view.playing .pv-hero.is-cover::after{display:none}
-.project-view.playing .pv-hero-txt{opacity:0;transition:opacity .3s}
-.project-view.playing .pv-hero{height:100vh}
 
 .pv-body{max-width:860px;margin:0 auto;padding:70px 30px 40px}
 .pv-summary{font-size:clamp(18px,2.4vw,26px);line-height:1.55;color:#d3d8e6;font-weight:300;text-wrap:balance}
 .pv-status{margin-top:20px;font-family:var(--mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--dim)}
 .pv-status b{color:var(--mint);font-weight:500}
 
-/* accès rapides : jouer en ligne / télécharger / code source */
-.pv-links{display:flex;flex-wrap:wrap;align-items:center;gap:24px;margin-top:30px}
+/* accès rapides en fin de page : jouer en ligne / télécharger / code source */
+.pv-links{display:flex;flex-wrap:wrap;align-items:center;gap:28px;margin-top:66px;padding-top:34px;border-top:1px solid var(--line)}
 .pv-link{display:inline-flex;align-items:center;gap:10px;text-decoration:none;
   font-family:var(--mono);font-size:12px;letter-spacing:.16em;text-transform:uppercase;transition:.35s cubic-bezier(.2,.8,.2,1)}
 .pv-link-ico{font-size:12px;line-height:1;transition:transform .35s cubic-bezier(.2,.8,.2,1)}

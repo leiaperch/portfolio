@@ -8,8 +8,6 @@ import { createProjectScene } from '../project-scene.js';
 import { createIsoScene } from '../iso-scene.js';
 import { createDungeonScene } from '../dungeon-scene.js';
 import { createGalaxyScene } from '../galaxy-scene.js';
-import { createNexusHero } from '../nexus-hero.js';
-import { createSillonHero } from '../sillon-hero.js';
 import { t, tv, getLang, toggleLang, onLang } from '../i18n.js';
 import { el, clear } from '../dom.js';
 
@@ -48,13 +46,22 @@ export function renderProject(id, { onCursorRefresh } = {}) {
     overlay = el('a', { class: 'pv-play', href: p.play, target: '_blank', rel: 'noopener', dataset: { cursor: 'JOUER' } }, r.playLbl);
   }
 
-  const liveHero = isEmbed ? p.heroLive || null : null; // 'galaxy' | 'nexus'
+  const liveHero = isEmbed && p.heroLive === 'galaxy'; // shader galaxie (Magnitude)
+  const heroSlides = isEmbed && Array.isArray(p.heroSlides) ? p.heroSlides : null;
+  const buildSlides = (list) => el('div', { class: 'pv-slides' }, list.map((src, i) => {
+    const d = (i * 26 / list.length).toFixed(2) + 's';
+    const img = el('img', { src, alt: '' }); img.style.animationDelay = d;
+    const slide = el('div', { class: 'pv-slide' }, img); slide.style.animationDelay = d;
+    return slide;
+  }));
   const heroMedia = hasCanvas
     ? el('canvas', { class: 'pv-canvas' })
-    : el('div', { class: 'pv-hero-cover' + (liveHero ? ' is-shader' : '') },
-        liveHero
-          ? el('canvas', { class: 'pv-shader-canvas', dataset: { cursor: 'TOURNER' } })
-          : el('img', { src: p.cover, alt: p.title }));
+    : heroSlides
+      ? el('div', { class: 'pv-hero-cover is-slides' }, buildSlides(heroSlides))
+      : el('div', { class: 'pv-hero-cover' + (liveHero ? ' is-shader' : '') },
+          liveHero
+            ? el('canvas', { class: 'pv-shader-canvas', dataset: { cursor: 'TOURNER' } })
+            : el('img', { src: p.cover, alt: p.title }));
 
   r.back = el('a', { class: 'pv-back', href: '#/', dataset: { cursor: '' } });
   r.lang = el('button', { class: 'lang', dataset: { lang: getLang() }, 'aria-label': 'Changer de langue' },
@@ -213,13 +220,11 @@ export function renderProject(id, { onCursorRefresh } = {}) {
     if (isExplore) canvas()?.addEventListener('click', () => { if (!exploring) scene.lock?.(); });
   }
 
-  // hero vivant manipulable (mode embed) — décoratif, on joue via le lien en bas de page
+  // hero shader galaxie manipulable (Magnitude) — décoratif, on joue via le lien en bas
   let heroScene = null;
   if (liveHero) {
     const sc = view.querySelector('.pv-shader-canvas');
-    if (sc) heroScene = liveHero === 'nexus' ? createNexusHero(sc, { reducedMotion })
-      : liveHero === 'sillon' ? createSillonHero(sc, { reducedMotion })
-      : createGalaxyScene(sc, { reducedMotion });
+    if (sc) heroScene = createGalaxyScene(sc, { reducedMotion });
   }
 
   return {

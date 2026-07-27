@@ -145,6 +145,10 @@ export const projects = [
       'images/the-club/ivy.jpg',
       'images/the-club/nox.jpg',
     ],
+    links: [
+      { kind: 'play', url: 'https://leiaperch.github.io/THE_CLUB/' },
+      { kind: 'source', url: 'https://github.com/leiaperch/THE_CLUB' },
+    ],
   },
   {
     id: 'kaldrith',
@@ -321,6 +325,82 @@ export const projects = [
       'images/magnitude/planet.jpg',
       'images/magnitude/solar.jpg',
       'images/magnitude/deep.jpg',
+    ],
+    links: [
+      { kind: 'play', url: 'https://leiaperch.github.io/magnitude/' },
+      { kind: 'source', url: 'https://github.com/leiaperch/magnitude' },
+    ],
+  },
+  {
+    id: 'nexus-2049',
+    title: 'NEXUS 2049',
+    realm: 'II',
+    type: { fr: 'Simulation urbaine · Web', en: 'Urban simulation · Web' },
+    tech: ['React', 'TypeScript', 'Three.js', 'Vite'],
+    year: '2026',
+    mode: 'embed',
+    scene: null,
+    embed: 'https://leiaperch.github.io/nexus-2049/',
+    status: { fr: 'Jouable en ligne', en: 'Playable online' },
+    summary: {
+      fr: 'Simulateur web où l’on pilote Méridienne, métropole fictive d’estuaire, de 2049 à 2069 : on arbitre des dossiers de politique publique et la ville — rendue en 3D — se recalcule sous nos décisions.',
+      en: 'A web simulator where you steer Méridienne, a fictional estuary metropolis, from 2049 to 2069: arbitrate public-policy files and the city — rendered in 3D — recomputes under your decisions.',
+    },
+    about: {
+      fr: [
+        'NEXUS 2049 est une installation-simulateur : après un « Grand Décrochage » climatique, Méridienne confie sa conduite à un système d’exploitation urbain. On promulgue des politiques sur trois axes — énergie, mobilité, climat — dont les conséquences se diffusent sur sept indicateurs et six quartiers, avec un passé figé et un futur recalculé à chaque décision (undo/redo compris).',
+        'La ville est rendue en 3D temps réel (Three.js) : bâtiments extrudés selon la densité, canopée, fleuve et flux animés, éclairage IBL et ombres, la même métropole se relisant sous chaque couche de données. Direction artistique entre cartographie scientifique et brutalisme institutionnel. Développé en React / TypeScript, moteur de simulation pur et déterministe, sans backend.',
+      ],
+      en: [
+        'NEXUS 2049 is an installation-simulator: after a climate “Great Decoupling”, Méridienne hands its governance to an urban operating system. You enact policies across three axes — energy, mobility, climate — whose consequences ripple through seven indicators and six districts, with a frozen past and a future recomputed at every decision (undo/redo included).',
+        'The city is rendered in real-time 3D (Three.js): buildings extruded by density, tree canopy, river and animated flows, IBL lighting and shadows, the same metropolis re-read under each data layer. Art direction between scientific cartography and institutional brutalism. Built in React / TypeScript, a pure deterministic simulation engine, no backend.',
+      ],
+    },
+    cover: 'images/nexus/cover.jpg',
+    gallery: [
+      'images/nexus/densite.jpg',
+      'images/nexus/vegetation.jpg',
+      'images/nexus/pollution.jpg',
+    ],
+    links: [
+      { kind: 'play', url: 'https://leiaperch.github.io/nexus-2049/' },
+      { kind: 'source', url: 'https://github.com/leiaperch/nexus-2049' },
+    ],
+  },
+  {
+    id: 'sillon',
+    title: 'SILLON',
+    realm: 'I',
+    type: { fr: 'Jeu d’adresse musical · Web', en: 'Musical skill game · Web' },
+    tech: ['Three.js', 'Web Audio', 'PWA', 'JavaScript'],
+    year: '2026',
+    mode: 'embed',
+    scene: null,
+    embed: 'https://leiaperch.github.io/neon-roll/',
+    status: { fr: 'Jouable en ligne · Installable', en: 'Playable online · Installable' },
+    summary: {
+      fr: 'Jeu d’adresse web pour téléphone inspiré de Rolling Sky : un diamant de platine lit le sillon d’un disque, une bille qui roule au rythme de la musique. Chaque niveau est une piste dans un genre différent, entièrement synthétisée.',
+      en: 'A mobile-first web skill game inspired by Rolling Sky: a platinum diamond reads the groove of a record, a ball rolling to the beat. Each level is a track in a different genre, fully synthesised.',
+    },
+    about: {
+      fr: [
+        'SILLON reprend le principe de Rolling Sky en web : une bille file sur une piste étroite qu’il faut guider entre obstacles et trous, en rythme. La direction artistique est une pochette de disque, la bille un diamant de platine qui « lit » le sillon, et chaque niveau est une piste dans un genre distinct — house, techno, chiptune, trance, hardstyle…',
+        'Tout est synchronisé à la musique : une ligne de carte vaut une subdivision musicale et le tempo de la piste pilote la vitesse de défilement, donc la difficulté. La bande-son est entièrement synthétisée par un banc de voix, un motif par piste. Développé en Three.js, jouable dans le navigateur et installable en PWA sur téléphone. Un validateur et un pilote automatique vérifient que chaque niveau reste franchissable.',
+      ],
+      en: [
+        'SILLON takes the Rolling Sky idea to the web: a ball races down a narrow track you steer between obstacles and gaps, on beat. The art direction is a record sleeve, the ball a platinum diamond that “reads” the groove, and each level is a track in a distinct genre — house, techno, chiptune, trance, hardstyle…',
+        'Everything is synced to the music: one map line equals one musical subdivision and the track’s tempo drives the scroll speed, hence the difficulty. The soundtrack is entirely synthesised by a bank of voices, one pattern per track. Built in Three.js, playable in the browser and installable as a PWA on phone. A validator and an autopilot check that every level stays clearable.',
+      ],
+    },
+    cover: 'images/sillon/cover.jpg',
+    gallery: [
+      'images/sillon/techno.jpg',
+      'images/sillon/futurebass.jpg',
+      'images/sillon/beachhouse.jpg',
+    ],
+    links: [
+      { kind: 'play', url: 'https://leiaperch.github.io/neon-roll/' },
+      { kind: 'source', url: 'https://github.com/leiaperch/neon-roll' },
     ],
   },
 ];

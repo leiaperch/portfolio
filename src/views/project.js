@@ -67,6 +67,7 @@ export function renderProject(id, { onCursorRefresh } = {}) {
   r.type = el('div', { class: 'pv-type' });
   r.summary = el('p', { class: 'pv-summary' });
   r.status = el('div', { class: 'pv-status' });
+  r.linksWrap = el('div', { class: 'pv-links-wrap' });
   r.aboutWrap = el('div', { class: 'pv-about-wrap' });
   r.featWrap = el('div', { class: 'pv-features-wrap' });
   r.galWrap = el('div', { class: 'pv-gallery-wrap' });
@@ -89,7 +90,7 @@ export function renderProject(id, { onCursorRefresh } = {}) {
       ),
       overlay,
     ),
-    el('section', { class: 'pv-body' }, r.summary, r.status, r.aboutWrap, r.featWrap, r.galWrap),
+    el('section', { class: 'pv-body' }, r.summary, r.status, r.linksWrap, r.aboutWrap, r.featWrap, r.galWrap),
     el('footer', { class: 'pv-foot' }, r.next),
   );
 
@@ -131,6 +132,15 @@ export function renderProject(id, { onCursorRefresh } = {}) {
 
     clear(r.status);
     if (p.status) r.status.append(el('b', { text: '●' }), ' ' + tv(p.status));
+
+    clear(r.linksWrap);
+    if (p.links?.length) {
+      const ico = { play: '▶', download: '↓', source: '‹ ›' };
+      r.linksWrap.append(el('div', { class: 'pv-links' }, p.links.map((l) =>
+        el('a', { class: `pv-link pv-link-${l.kind}`, href: l.url, target: '_blank', rel: 'noopener', dataset: { cursor: '' } },
+          el('span', { class: 'pv-link-ico', text: ico[l.kind] || '↗' }),
+          el('span', { text: t('pv_link_' + l.kind) })))));
+    }
 
     clear(r.aboutWrap);
     if (p.about) r.aboutWrap.append(

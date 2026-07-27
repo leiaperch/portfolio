@@ -198,6 +198,18 @@ body.view-project{overflow:hidden}
 .pv-status{margin-top:20px;font-family:var(--mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--dim)}
 .pv-status b{color:var(--mint);font-weight:500}
 
+/* accès rapides : jouer en ligne / télécharger / code source */
+.pv-links{display:flex;flex-wrap:wrap;gap:12px;margin-top:26px}
+.pv-link{display:inline-flex;align-items:center;gap:9px;padding:12px 20px;border-radius:4px;text-decoration:none;
+  font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;
+  border:1px solid var(--line);color:var(--ink);background:rgba(255,255,255,.02);
+  transition:border-color .3s,background .3s,transform .3s,box-shadow .3s}
+.pv-link:hover{transform:translateY(-2px)}
+.pv-link-ico{font-size:13px;line-height:1}
+.pv-link-play{border-color:var(--coral);background:rgba(255,93,115,.09);color:#fff}
+.pv-link-play:hover{background:rgba(255,93,115,.18);box-shadow:0 0 26px rgba(255,93,115,.28)}
+.pv-link-download:hover,.pv-link-source:hover{border-color:var(--mint);color:#fff;box-shadow:0 0 24px rgba(111,242,201,.18)}
+
 .pv-sec-h{margin:64px 0 22px;font-family:var(--mono);font-size:12px;letter-spacing:.28em;text-transform:uppercase;
   color:var(--mint);display:flex;align-items:center;gap:14px}
 .pv-sec-h::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,var(--line),transparent)}

@@ -376,6 +376,7 @@ export const projects = [
     tech: ['Three.js', 'Web Audio', 'PWA', 'JavaScript'],
     year: '2026',
     mode: 'embed',
+    heroLive: 'sillon',
     scene: null,
     embed: 'https://leiaperch.github.io/neon-roll/',
     status: { fr: 'Jouable en ligne · Installable', en: 'Playable online · Installable' },

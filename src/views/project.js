@@ -9,6 +9,7 @@ import { createIsoScene } from '../iso-scene.js';
 import { createDungeonScene } from '../dungeon-scene.js';
 import { createGalaxyScene } from '../galaxy-scene.js';
 import { createNexusHero } from '../nexus-hero.js';
+import { createSillonHero } from '../sillon-hero.js';
 import { t, tv, getLang, toggleLang, onLang } from '../i18n.js';
 import { el, clear } from '../dom.js';
 
@@ -216,8 +217,8 @@ export function renderProject(id, { onCursorRefresh } = {}) {
   let heroScene = null;
   if (liveHero) {
     const sc = view.querySelector('.pv-shader-canvas');
-    if (sc) heroScene = liveHero === 'nexus'
-      ? createNexusHero(sc, { reducedMotion })
+    if (sc) heroScene = liveHero === 'nexus' ? createNexusHero(sc, { reducedMotion })
+      : liveHero === 'sillon' ? createSillonHero(sc, { reducedMotion })
       : createGalaxyScene(sc, { reducedMotion });
   }
 

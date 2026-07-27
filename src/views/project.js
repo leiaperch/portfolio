@@ -51,7 +51,7 @@ export function renderProject(id, { onCursorRefresh } = {}) {
   const heroMedia = hasCanvas
     ? el('canvas', { class: 'pv-canvas' })
     : heroPlayable
-      ? el('iframe', { class: 'pv-hero-frame', src: p.embed, title: p.title, allow: 'autoplay; fullscreen; gamepad; accelerometer' })
+      ? el('iframe', { class: 'pv-hero-frame', src: p.embed + (p.embed.includes('?') ? '&' : '?') + 'hero', title: p.title, allow: 'autoplay; fullscreen; gamepad; accelerometer' })
       : el('div', { class: 'pv-hero-cover' + (liveHero ? ' is-shader' : '') },
           liveHero
             ? el('canvas', { class: 'pv-shader-canvas', dataset: { cursor: 'TOURNER' } })

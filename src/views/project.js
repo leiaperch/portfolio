@@ -8,6 +8,7 @@ import { createProjectScene } from '../project-scene.js';
 import { createIsoScene } from '../iso-scene.js';
 import { createDungeonScene } from '../dungeon-scene.js';
 import { createGalaxyScene } from '../galaxy-scene.js';
+import { createNexusHero } from '../nexus-hero.js';
 import { t, tv, getLang, toggleLang, onLang } from '../i18n.js';
 import { el, clear } from '../dom.js';
 
@@ -46,11 +47,11 @@ export function renderProject(id, { onCursorRefresh } = {}) {
     overlay = el('a', { class: 'pv-play', href: p.play, target: '_blank', rel: 'noopener', dataset: { cursor: 'JOUER' } }, r.playLbl);
   }
 
-  const hasShaderHero = isEmbed && p.heroShader === 'galaxy';
+  const liveHero = isEmbed ? p.heroLive || null : null; // 'galaxy' | 'nexus'
   const heroMedia = hasCanvas
     ? el('canvas', { class: 'pv-canvas' })
-    : el('div', { class: 'pv-hero-cover' + (hasShaderHero ? ' is-shader' : '') },
-        hasShaderHero
+    : el('div', { class: 'pv-hero-cover' + (liveHero ? ' is-shader' : '') },
+        liveHero
           ? el('canvas', { class: 'pv-shader-canvas', dataset: { cursor: 'TOURNER' } })
           : el('img', { src: p.cover, alt: p.title }));
 
@@ -211,11 +212,13 @@ export function renderProject(id, { onCursorRefresh } = {}) {
     if (isExplore) canvas()?.addEventListener('click', () => { if (!exploring) scene.lock?.(); });
   }
 
-  // hero « shader galaxie » manipulable (mode embed) — décoratif, on joue via le lien en bas de page
+  // hero vivant manipulable (mode embed) — décoratif, on joue via le lien en bas de page
   let heroScene = null;
-  if (hasShaderHero) {
+  if (liveHero) {
     const sc = view.querySelector('.pv-shader-canvas');
-    if (sc) heroScene = createGalaxyScene(sc, { reducedMotion });
+    if (sc) heroScene = liveHero === 'nexus'
+      ? createNexusHero(sc, { reducedMotion })
+      : createGalaxyScene(sc, { reducedMotion });
   }
 
   return {

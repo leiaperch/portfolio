@@ -47,17 +47,11 @@ export function renderProject(id, { onCursorRefresh } = {}) {
   }
 
   const liveHero = isEmbed && p.heroLive === 'galaxy'; // shader galaxie (Magnitude)
-  const heroSlides = isEmbed && Array.isArray(p.heroSlides) ? p.heroSlides : null;
-  const buildSlides = (list) => el('div', { class: 'pv-slides' }, list.map((src, i) => {
-    const d = (i * 26 / list.length).toFixed(2) + 's';
-    const img = el('img', { src, alt: '' }); img.style.animationDelay = d;
-    const slide = el('div', { class: 'pv-slide' }, img); slide.style.animationDelay = d;
-    return slide;
-  }));
+  const heroPlayable = isEmbed && p.heroEmbed;         // vrai jeu jouable dans le hero
   const heroMedia = hasCanvas
     ? el('canvas', { class: 'pv-canvas' })
-    : heroSlides
-      ? el('div', { class: 'pv-hero-cover is-slides' }, buildSlides(heroSlides))
+    : heroPlayable
+      ? el('iframe', { class: 'pv-hero-frame', src: p.embed, title: p.title, allow: 'autoplay; fullscreen; gamepad; accelerometer' })
       : el('div', { class: 'pv-hero-cover' + (liveHero ? ' is-shader' : '') },
           liveHero
             ? el('canvas', { class: 'pv-shader-canvas', dataset: { cursor: 'TOURNER' } })
@@ -78,7 +72,7 @@ export function renderProject(id, { onCursorRefresh } = {}) {
   r.next = el('a', { class: 'pv-next', href: `#/p/${next.id}`, dataset: { cursor: '' } },
     r.nextLbl, el('span', { class: 'pv-next-name', text: `${next.title} →` }));
 
-  const heroClass = ['pv-hero', (isExplore || isIso || isDungeon) && 'is-explore', (isIso || isDungeon) && 'is-iso', !hasCanvas && 'is-cover']
+  const heroClass = ['pv-hero', (isExplore || isIso || isDungeon) && 'is-explore', (isIso || isDungeon) && 'is-iso', !hasCanvas && 'is-cover', heroPlayable && 'is-play']
     .filter(Boolean).join(' ');
 
   const view = el('div', { class: 'project-view' },

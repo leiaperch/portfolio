@@ -138,8 +138,8 @@ body.view-project{overflow:hidden}
   opacity:0;transition:opacity .55s ease}
 .project-view.in{opacity:1}
 /* révélation cinématique du cover : léger zoom qui se pose */
-.pv-hero-cover:not(.is-slides) img{transform:scale(1.07);transition:transform 1.3s cubic-bezier(.2,.8,.2,1)}
-.project-view.in .pv-hero-cover:not(.is-slides) img{transform:scale(1)}
+.pv-hero-cover img{transform:scale(1.07);transition:transform 1.3s cubic-bezier(.2,.8,.2,1)}
+.project-view.in .pv-hero-cover img{transform:scale(1)}
 
 .pv-top{position:sticky;top:0;z-index:5;display:flex;justify-content:space-between;align-items:center;
   padding:22px 30px;font-family:var(--mono);font-size:11px;letter-spacing:.22em;text-transform:uppercase;
@@ -175,14 +175,11 @@ body.view-project{overflow:hidden}
 /* hero image (projets 2D) + jeu web embarqué */
 .pv-hero-cover{position:absolute;inset:0;width:100%;height:100%}
 .pv-hero-cover img{width:100%;height:100%;object-fit:cover;display:block}
-/* hero « vrai jeu » : fondu enchaîné des captures + zoom lent (Ken Burns) */
-.pv-hero-cover.is-slides{background:#05060a}
-.pv-slides{position:absolute;inset:0;overflow:hidden}
-.pv-slide{position:absolute;inset:0;opacity:0;animation:pvSlide 26s linear infinite;will-change:opacity}
-.pv-slide img{width:100%;height:100%;object-fit:cover;display:block;transform-origin:center;
-  animation:pvKen 26s ease-in-out infinite;will-change:transform}
-@keyframes pvSlide{0%{opacity:0}2%{opacity:1}23%{opacity:1}26%{opacity:0}100%{opacity:0}}
-@keyframes pvKen{0%{transform:scale(1.03)}25%{transform:scale(1.13)}100%{transform:scale(1.13)}}
+/* hero « vrai jeu jouable » : iframe du jeu live, interactif directement */
+.pv-hero-frame{position:absolute;inset:0;width:100%;height:100%;border:0;display:block;background:#05060a}
+/* le jeu est la vedette : titre estompé au survol, assombrissement allégé */
+.pv-hero.is-play::after{background:linear-gradient(180deg,transparent 60%,rgba(5,6,10,.5))}
+.pv-hero.is-play:hover .pv-hero-txt{opacity:.1;transition:opacity .4s ease}
 
 /* hero shader galaxie manipulable */
 .pv-hero-cover.is-shader{background:#04040a}
@@ -282,6 +279,4 @@ body.view-project{overflow:hidden}
   .name .ln i{transform:none}.sub{opacity:1}
   .project-view{transition:none}
   .pv-hero-cover img{transform:none;transition:none}
-  .pv-slide,.pv-slide img{animation:none;transform:none}
-  .pv-slide{opacity:0}.pv-slide:first-child{opacity:1}
 }

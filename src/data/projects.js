@@ -405,4 +405,41 @@ export const projects = [
       { kind: 'source', url: 'https://github.com/leiaperch/neon-roll' },
     ],
   },
+  {
+    id: 'soda',
+    title: 'SODA',
+    realm: 'I',
+    type: { fr: 'Runner mobile · Three.js', en: 'Mobile runner · Three.js' },
+    tech: ['Three.js', 'GLSL', 'Capacitor', 'Android'],
+    year: '2026',
+    mode: 'embed',
+    heroEmbed: true,
+    scene: null,
+    embed: 'https://leiaperch.github.io/soda/',
+    status: { fr: 'Jouable en ligne · APK Android', en: 'Playable online · Android APK' },
+    summary: {
+      fr: 'Runner mobile en Three.js : une coursière en rollers antigrav dévale une ville orbitale pastel Y2K. Onze zones, onze règles. La jauge de charge descend en continu ; le crash ne tue pas, on meurt seulement quand la barre se vide.',
+      en: 'A mobile runner in Three.js: a courier on antigrav rollers races down a pastel Y2K orbital city. Eleven zones, eleven rules. Your charge drains continuously; crashing never kills you, you only die when the bar empties.',
+    },
+    about: {
+      fr: [
+        'SODA est un runner d’adresse à une main, à la Pin Out, dans une ville orbitale Y2K bubblegum. On glisse en rollers antigrav : changer de voie, sauter, se baisser, c’est toute la commande, acquise en trois secondes. Le crash ne tue jamais, il coûte de la charge et de la vitesse ; on meurt quand la jauge se vide. Aucun achat, aucune montée en puissance — on ne devient pas plus fort entre deux runs, on devient meilleur.',
+        'Onze zones, onze mécaniques distinctes et non des reskins : The Ring et ses avenues à trois voies, The Shore en pleine mer, les collines de Sugar Flats, l’Arcade où l’on devient la bille, The Docks en basse gravité… Développé seule en Three.js (GLSL, cel-shading pastel, chrome réservé à la coursière et aux relais), avec une bande-son originale, puis empaqueté en application Android via Capacitor. Jouable ici dans le navigateur, ou en installant l’APK.',
+      ],
+      en: [
+        'SODA is a one-thumb skill runner, Pin Out style, set in a Y2K bubblegum orbital city. You glide on antigrav rollers: switch lane, jump, slide — that is the whole control scheme, learned in three seconds. Crashing never kills you, it costs charge and speed; you die when the bar empties. Nothing to buy, no upgrades — you do not get stronger between runs, you get better.',
+        'Eleven zones, eleven distinct mechanics rather than reskins: The Ring and its three-lane avenues, The Shore out on open sea, the Sugar Flats hills, the Arcade where you become the ball, the low-gravity Docks… Built solo in Three.js (GLSL, pastel cel-shading, chrome kept for the courier and relays), with an original soundtrack, then packaged as an Android app through Capacitor. Playable here in the browser, or by installing the APK.',
+      ],
+    },
+    cover: 'images/soda/cover.jpg',
+    gallery: [
+      'images/soda/dunes.jpg',
+      'images/soda/arcade.jpg',
+      'images/soda/shore.jpg',
+    ],
+    links: [
+      { kind: 'play', url: 'https://leiaperch.github.io/soda/' },
+      { kind: 'download', url: 'https://leiaperch.github.io/soda/SODA-orbital-runner.apk' },
+    ],
+  },
 ];

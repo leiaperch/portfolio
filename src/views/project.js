@@ -133,10 +133,13 @@ export function renderProject(id, { onCursorRefresh } = {}) {
     clear(r.linksWrap);
     if (p.links?.length) {
       const ico = { play: '▶', download: '↓', source: '‹ ›' };
-      r.linksWrap.append(el('div', { class: 'pv-links' }, p.links.map((l) =>
-        el('a', { class: `pv-link pv-link-${l.kind}`, href: l.url, target: '_blank', rel: 'noopener', dataset: { cursor: '' } },
+      r.linksWrap.append(el('div', { class: 'pv-links' }, p.links.map((l) => {
+        const attrs = { class: `pv-link pv-link-${l.kind}`, href: l.url, target: '_blank', rel: 'noopener', dataset: { cursor: '' } };
+        if (l.kind === 'download') attrs.download = '';
+        return el('a', attrs,
           el('span', { class: 'pv-link-ico', text: ico[l.kind] || '↗' }),
-          el('span', { text: t('pv_link_' + l.kind) })))));
+          el('span', { text: t('pv_link_' + l.kind) }));
+      })));
     }
 
     clear(r.aboutWrap);

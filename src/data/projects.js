@@ -442,4 +442,155 @@ export const projects = [
       { kind: 'download', url: 'https://leiaperch.github.io/soda/SODA-orbital-runner.apk' },
     ],
   },
+  {
+    id: 'pension-royale',
+    title: 'Pension Royale',
+    realm: 'I',
+    type: { fr: 'Jeu mobile · Gestion', en: 'Mobile game · Management' },
+    tech: ['Unity 6', 'URP', 'C#', 'Android'],
+    year: '2026',
+    mode: 'cover',
+    scene: null,
+    embed: null,
+    status: { fr: 'Boucle complète jouable · APK Android', en: 'Full loop playable · Android APK' },
+    summary: {
+      fr: 'Jeu mobile de pension pour chiens, inspiré de Dog Hotel, avec un volet élevage. Les pensionnaires passent et rapportent des pièces, les résidents restent pour la collection et les portées.',
+      en: 'A mobile dog boarding game inspired by Dog Hotel, with a breeding side. Boarders come and go and bring in coins, residents stay for your collection and litters.',
+    },
+    about: {
+      fr: [
+        'Un client arrive avec son chien, on le nourrit, on le toilette, on le lave, on joue avec lui puis on le rend contre paiement. Les gains servent à décorer et agrandir la pension : chambres, chenil, jardin et parcours d’agility. À côté, deux chiens résidents peuvent se reproduire, et la couleur de la robe des chiots suit une génétique réelle.',
+        'Développé sous Unity 6 (URP, Android), en co-conception avec ma sœur Lou, qui a aussi été la testeuse de référence. Les dix-huit races partagent un seul rig canin. Les graphismes low-poly viennent des packs POLYGON de Synty ; le code et le game design sont mon travail, couverts par 178 tests.',
+      ],
+      en: [
+        'A client drops off their dog; you feed, groom, wash and play with it, then hand it back for payment. Earnings go into decorating and expanding the boarding house: rooms, kennel, garden and an agility course. Alongside, two resident dogs can breed, and the puppies’ coat colour follows real genetics.',
+        'Built in Unity 6 (URP, Android), co-designed with my sister Lou, who was also the main tester. All eighteen breeds share a single dog rig. The low-poly art comes from Synty’s POLYGON packs; the code and game design are my work, covered by 178 tests.',
+      ],
+    },
+    cover: 'images/pension/cover.webp',
+    gallery: [
+      'images/pension/chambre.webp',
+      'images/pension/chenil.webp',
+      'images/pension/agility.webp',
+    ],
+    links: [
+      { kind: 'download', url: 'downloads/pension-royale.apk' },
+    ],
+  },
+  {
+    id: 'empyrean-fighter',
+    title: 'Empyrean Fighter',
+    realm: 'I',
+    type: { fr: 'Jeu de combat 2D · Web', en: '2D fighting game · Web' },
+    tech: ['JavaScript', 'Canvas 2D', 'WebRTC', 'PeerJS'],
+    year: '2026',
+    mode: 'embed',
+    heroEmbed: true,
+    scene: null,
+    embed: 'https://leiaperch.github.io/EmpyreanFighter/',
+    status: { fr: 'Jouable en ligne · 1 ou 2 joueurs', en: 'Playable online · 1 or 2 players' },
+    summary: {
+      fr: 'Jeu de combat 2D dark fantasy dans l’esprit de Street Fighter, jouable dans le navigateur. Rebelles contre Loyalistes : six combattants tirés de l’univers de mon serveur de jeu de rôle.',
+      en: 'A dark fantasy 2D fighting game in the spirit of Street Fighter, playable in the browser. Rebels versus Loyalists: six fighters drawn from the world of my role-play server.',
+    },
+    about: {
+      fr: [
+        'Chaque personnage a ses coups spéciaux, un super qui se déclenche jauge pleine et ses propres effets, poison compris. Les matchs se jouent en deux rounds gagnants de 99 secondes, contre une IA à plusieurs niveaux de difficulté, à deux sur le même clavier ou en ligne. Les touches se redéfinissent et la manette est reconnue ; un tutoriel apprend le blocage, la balayette et l’anti-air.',
+        'Tout tient dans une page en JavaScript et Canvas 2D, sans moteur ni serveur de jeu : le mode en ligne passe en pair à pair par WebRTC (PeerJS). Les personnages sont ceux de mon serveur RP ; je les ai créés puis animés image par image à partir de planches de sprites.',
+      ],
+      en: [
+        'Each character has their own specials, a super that fires on a full meter and their own effects, poison included. Matches are best of three 99-second rounds, against an AI with several difficulty levels, two players on one keyboard, or online. Keys can be remapped and gamepads are supported; a tutorial teaches blocking, sweeps and anti-airs.',
+        'It all fits in one page of JavaScript and Canvas 2D, with no engine and no game server: online play runs peer to peer over WebRTC (PeerJS). The fighters come from my RP server; I created them and animated them frame by frame from sprite sheets.',
+      ],
+    },
+    cover: 'images/empyrean/cover.webp',
+    gallery: [
+      'images/empyrean/dante.webp',
+      'images/empyrean/poison.webp',
+      'images/empyrean/eira.webp',
+    ],
+    links: [
+      { kind: 'play', url: 'https://leiaperch.github.io/EmpyreanFighter/' },
+      { kind: 'source', url: 'https://github.com/leiaperch/EmpyreanFighter' },
+    ],
+  },
+  {
+    id: 'horizon',
+    title: 'Horizon',
+    realm: 'II',
+    type: { fr: 'Landing immersive · Vidéo au scroll', en: 'Immersive landing · Scroll video' },
+    tech: ['Three.js', 'GSAP', 'Lenis', 'Vidéo IA'],
+    year: '2026',
+    mode: 'cover',
+    scene: null,
+    embed: null,
+    status: { fr: 'Gabarit sur commande · Démo vidéo', en: 'Commissioned template · Video demo' },
+    summary: {
+      fr: 'Gabarit de landing page pour un hôtel en bord de mer. Le scroll pilote un plan de drone continu : l’océan à l’aube, les falaises de basalte, puis le plateau et ses chevaux sauvages.',
+      en: 'A landing page template for a seaside hotel. Scrolling drives one continuous drone shot: the ocean at dawn, basalt cliffs, then the plateau and its wild horses.',
+    },
+    about: {
+      fr: [
+        'La page est une seule prise de vue d’une vingtaine de secondes, que le scroll fait avancer ou reculer. Elle est faite de deux clips générés avec Kling : le second part de la dernière image réelle du premier, ce qui rend le raccord invisible.',
+        'Par-dessus la vidéo, des couches Three.js en temps réel ajoutent la brume, les rais de lumière, la poussière et un reflet d’objectif qui suit le curseur. Le texte arrive en même temps que les plans (GSAP, Lenis). Réalisé sur commande comme gabarit à revendre : un nouveau client n’a qu’un fichier de contenu à remplacer.',
+      ],
+      en: [
+        'The page is a single shot of about twenty seconds that scrolling plays forwards or backwards. It is built from two clips generated with Kling: the second starts from the actual last frame of the first, so the cut is invisible.',
+        'On top of the video, real-time Three.js layers add mist, light rays, dust and a lens flare that follows the cursor. The copy comes in with the shots (GSAP, Lenis). Made to order as a resellable template: a new client only has to swap one content file.',
+      ],
+    },
+    video: 'videos/horizon.mp4',
+    poster: 'images/horizon/poster.jpg',
+    mediaCaption: {
+      fr: 'Capture du scroll de la landing, avec les couches temps réel.',
+      en: 'Screen capture of the landing scroll, with the real-time layers.',
+    },
+    cover: 'images/horizon/cover.webp',
+    gallery: [
+      'images/horizon/plateau.webp',
+      'images/horizon/lande.webp',
+    ],
+  },
+  {
+    id: 'maison',
+    title: 'Maison',
+    realm: 'II',
+    type: { fr: 'Landing immersive · 3D dans la vidéo', en: 'Immersive landing · 3D in video' },
+    tech: ['Three.js', 'GSAP', 'Photogrammétrie', 'Vidéo IA'],
+    year: '2026',
+    mode: 'cover',
+    scene: null,
+    embed: null,
+    status: { fr: 'Site en ligne · Gabarit', en: 'Live website · Template' },
+    summary: {
+      fr: 'Landing page pour une marque d’objets de maison. On traverse une maison vide filmée pièce par pièce, et le scroll la meuble avec de vrais objets scannés, posés dans la perspective de chaque vidéo.',
+      en: 'A landing page for a homeware brand. You walk through an empty house filmed room by room, and scrolling furnishes it with real scanned objects, set in each video’s own perspective.',
+    },
+    about: {
+      fr: [
+        'Cinq pièces (salon, cuisine, chambre, salle de bain, terrasse), chacune filmée en panoramique et reliée à la suivante par un plan de couloir. La caméra Three.js est calée sur chaque clip pour que les scans photogrammétriques (Poly Haven) tiennent au sol, ombres comprises.',
+        'Un clic sur un objet rapproche la caméra et ouvre un panneau de matières ; on peut ensuite le déplacer et le tourner à la souris. Un mode nuit remplace chaque pièce par sa version éclairée aux lampes. Pensé comme gabarit : un nouveau client correspond à un nouveau fichier de contenu.',
+      ],
+      en: [
+        'Five rooms (living room, kitchen, bedroom, bathroom, terrace), each filmed as a pan and linked to the next by a hallway shot. The Three.js camera is matched to each clip so the photogrammetry scans (Poly Haven) sit on the floor, shadows included.',
+        'Clicking an object brings the camera closer and opens a materials panel; you can then move and rotate it with the mouse. A night mode swaps each room for its lamp-lit version. Built as a template: a new client is a new content file.',
+      ],
+    },
+    video: 'videos/maison.mp4',
+    poster: 'images/maison/poster.jpg',
+    mediaCaption: {
+      fr: 'Visite du salon et de la cuisine, avec la personnalisation d’un fauteuil.',
+      en: 'Tour of the living room and kitchen, customising an armchair along the way.',
+    },
+    cover: 'images/maison/cover.webp',
+    gallery: [
+      'images/maison/fauteuil.webp',
+      'images/maison/cuisine.webp',
+      'images/maison/salon-nuit.webp',
+    ],
+    links: [
+      { kind: 'visit', url: 'https://leiaperch.github.io/maison/' },
+      { kind: 'source', url: 'https://github.com/leiaperch/maison' },
+    ],
+  },
 ];

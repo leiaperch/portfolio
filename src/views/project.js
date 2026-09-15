@@ -132,9 +132,10 @@ export function renderProject(id, { onCursorRefresh } = {}) {
 
     clear(r.linksWrap);
     if (p.links?.length) {
-      const ico = { play: '▶', download: '↓', source: '‹ ›' };
+      const ico = { play: '▶', visit: '↗', download: '↓', source: '‹ ›' };
       r.linksWrap.append(el('div', { class: 'pv-links' }, p.links.map((l) => {
-        const attrs = { class: `pv-link pv-link-${l.kind}`, href: l.url, target: '_blank', rel: 'noopener', dataset: { cursor: '' } };
+        // « voir le site » reprend le style du bouton principal « jouer »
+        const attrs = { class: `pv-link pv-link-${l.kind === 'visit' ? 'play' : l.kind}`, href: l.url, target: '_blank', rel: 'noopener', dataset: { cursor: '' } };
         if (l.kind === 'download') attrs.download = '';
         return el('a', attrs,
           el('span', { class: 'pv-link-ico', text: ico[l.kind] || '↗' }),
